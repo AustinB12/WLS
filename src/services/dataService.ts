@@ -1,45 +1,41 @@
 import type { Book, Transaction, Reservation, BookFilters } from '../types';
+import { Genre } from '../types';
 
 // Mock data for development
 const mockBooks: Book[] = [
   {
     id: '1',
-    isbn: '978-0-06-112008-4',
+    libraryOfCongressCode: '978-0-06-112008-4',
     title: 'To Kill a Mockingbird',
     author: 'Harper Lee',
     publisher: 'HarperCollins',
     yearPublished: 1960,
-    genre: 'Fiction',
-    total_copies: 5,
-    available_copies: 3,
+    cost: 10.99,
+    genre: [Genre.Fiction],
     description:
       'A classic American novel about racial injustice and childhood innocence.',
-    cover_image_url:
-      'https://covers.openlibrary.org/b/isbn/9780061120084-L.jpg',
   },
   {
     id: '2',
-    isbn: '978-0-7432-7356-5',
+    libraryOfCongressCode: '978-0-7432-7356-5',
     title: '1984',
     author: 'George Orwell',
     publisher: 'Secker & Warburg',
     yearPublished: 1949,
-    genre: 'Dystopian Fiction',
-    total_copies: 4,
-    available_copies: 2,
+    cost: 9.99,
+    genre: [Genre.ScienceFiction, Genre.Fiction],
     description:
       'A dystopian social science fiction novel about totalitarian control.',
   },
   {
     id: '3',
-    isbn: '978-0-14-143951-8',
+    libraryOfCongressCode: '978-0-14-143951-8',
     title: 'Pride and Prejudice',
     author: 'Jane Austen',
     publisher: 'Penguin Classics',
     yearPublished: 1813,
-    genre: 'Romance',
-    total_copies: 3,
-    available_copies: 0,
+    cost: 8.99,
+    genre: [Genre.Romance, Genre.Fiction],
     description: 'A romantic novel of manners set in Georgian England.',
   },
 ];
@@ -87,7 +83,8 @@ export const dataService = {
         (book) =>
           book.title.toLowerCase().includes(searchLower) ||
           book.author.toLowerCase().includes(searchLower) ||
-          book.isbn.toLowerCase().includes(searchLower)
+          (book?.libraryOfCongressCode && book.libraryOfCongressCode.toLowerCase().includes(searchLower))
+          
       );
     }
 
@@ -102,11 +99,11 @@ export const dataService = {
       );
     }
 
-    if (filters?.availability === 'available') {
-      books = books.filter((book) => book.available_copies > 0);
-    } else if (filters?.availability === 'unavailable') {
-      books = books.filter((book) => book.available_copies === 0);
-    }
+    // if (filters?.availability === 'available') {
+    //   books = books.filter((book) => book.available_copies > 0);
+    // } else if (filters?.availability === 'unavailable') {
+    //   books = books.filter((book) => book.available_copies === 0);
+    // }
 
     return books;
   },
@@ -140,19 +137,24 @@ export const dataService = {
     return true;
   },
 
-  async getGenres(): Promise<string[]> {
-    const genres = [...new Set(mockBooks.map((book) => book.genre))];
-    return genres.sort();
+  async getGenres(): Promise<Genre[]> {
+    const genres = new Set<Genre>();
+    mockBooks.forEach((book) => {
+      if (book.genre) {
+        book.genre.forEach((g) => genres.add(g));
+      }
+    });
+    return Array.from(genres).sort();
   },
 
   // Transaction operations
   async checkoutBook(bookId: string): Promise<Transaction> {
     const book = mockBooks.find((b) => b.id === bookId);
-    if (!book || book.available_copies <= 0) {
-      throw new Error('Book not available for checkout');
-    }
+    // if (!book || book.available_copies <= 0) {
+    //   throw new Error('Book not available for checkout');
+    // }
 
-    book.available_copies -= 1;
+    // book.available_copies -= 1;
 
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + 14); // 2 weeks from now
@@ -177,7 +179,7 @@ export const dataService = {
 
     const book = mockBooks.find((b) => b.id === transaction.book_id);
     if (book) {
-      book.available_copies += 1;
+      // book.available_copies += 1;
     }
 
     transaction.status = 'returned';
