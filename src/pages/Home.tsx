@@ -7,9 +7,16 @@ import {
   List,
   ListItem,
   ListItemText,
-  Box,
+  Stack,
+  Button,
 } from '@mui/material';
-import { Assessment, History, TrendingUp } from '@mui/icons-material';
+import {
+  Assessment,
+  History,
+  LibraryAdd,
+  LibraryAddCheck,
+  TrendingUp,
+} from '@mui/icons-material';
 
 export const Home = () => {
   return (
@@ -27,7 +34,7 @@ export const Home = () => {
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Stack sx={{ flexDirection: 'row', alignItems: 'center', mb: 2 }}>
                 <Assessment sx={{ mr: 1, color: 'primary.main' }} />
                 <Typography
                   variant="h6"
@@ -36,7 +43,7 @@ export const Home = () => {
                 >
                   Quick Stats
                 </Typography>
-              </Box>
+              </Stack>
               <List dense>
                 <ListItem disablePadding>
                   <ListItemText primary="Books Available: 1,250" />
@@ -55,8 +62,8 @@ export const Home = () => {
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <History sx={{ mr: 1, color: 'secondary.main' }} />
+              <Stack sx={{ flexDirection: 'row', alignItems: 'center', mb: 2 }}>
+                <History sx={{ mr: 1 }} />
                 <Typography
                   variant="h6"
                   component="h2"
@@ -64,7 +71,7 @@ export const Home = () => {
                 >
                   Recent Activity
                 </Typography>
-              </Box>
+              </Stack>
               <List dense>
                 <ListItem disablePadding>
                   <ListItemText
@@ -92,7 +99,7 @@ export const Home = () => {
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Stack sx={{ flexDirection: 'row', alignItems: 'center', mb: 2 }}>
                 <TrendingUp sx={{ mr: 1, color: 'success.main' }} />
                 <Typography
                   variant="h6"
@@ -101,7 +108,7 @@ export const Home = () => {
                 >
                   Popular Books
                 </Typography>
-              </Box>
+              </Stack>
               <List dense>
                 <ListItem disablePadding>
                   <ListItemText
@@ -124,6 +131,42 @@ export const Home = () => {
               </List>
             </CardContent>
           </Card>
+        </Grid>
+      </Grid>
+      <Grid container sx={{ mt: 4 }} spacing={2}>
+        <Grid
+          size={{ xs: 12, sm: 6 }}
+          sx={{ height: { xs: '4rem', sm: '8rem' } }}
+        >
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            startIcon={<LibraryAddCheck />}
+            sx={{
+              height: '100%',
+              fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
+            }}
+          >
+            Check In
+          </Button>
+        </Grid>
+        <Grid
+          size={{ xs: 12, sm: 6 }}
+          sx={{ height: { xs: '4rem', sm: '8rem' } }}
+        >
+          <Button
+            fullWidth
+            variant="contained"
+            color="secondary"
+            startIcon={<LibraryAdd />}
+            sx={{
+              height: '100%',
+              fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
+            }}
+          >
+            Check Out
+          </Button>
         </Grid>
       </Grid>
     </Container>

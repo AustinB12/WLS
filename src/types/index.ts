@@ -9,7 +9,8 @@ export interface Book {
   cover_image_url?: string;
   cost: number;
   libraryOfCongressCode?: string;
-  available?: boolean;
+  copies?: number;
+  coverImageUrl?: string;
 }
 
 export interface Transaction {
@@ -85,4 +86,12 @@ export interface BookFormData {
   yearPublished?: string;
   genre?: Genre[];
   description?: string;
+}
+
+export interface Patron {
+  id: number;
+  firstName: string;
+  lastName: string;
+  balance: number;
+  birthday?: Date;
 }

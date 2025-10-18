@@ -15,6 +15,7 @@ import {
   MenuBook,
   LibraryBooks,
   Settings,
+  Person,
 } from '@mui/icons-material';
 
 const drawerWidth = 256;
@@ -33,6 +34,7 @@ export const Sidebar = () => {
     { text: 'Home', path: '/', icon: <Home /> },
     { text: 'Dashboard', path: '/dashboard', icon: <Dashboard /> },
     { text: 'Book Catalog', path: '/catalog', icon: <MenuBook /> },
+    { text: 'Patrons', path: '/patrons', icon: <Person /> },
     { text: 'My Books', path: '/my-books', icon: <LibraryBooks /> },
   ];
 

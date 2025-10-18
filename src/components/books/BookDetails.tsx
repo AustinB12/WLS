@@ -25,12 +25,13 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
   if (!book) return null;
 
   return (
-    <Box
+    <Stack
       sx={{
+        width: { xs: '100vw', sm: '75vw', md: '60vw' },
+        maxWidth: '1200px',
+        minWidth: '360px',
+        overflow: 'hidden',
         height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        minWidth: '50vw',
       }}
     >
       <Stack
@@ -53,7 +54,7 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
 
       {/* Content */}
       <Box sx={{ flex: 1, p: 3, overflow: 'auto' }}>
-        <Stack spacing={3}>
+        <Stack spacing={3} gap={1}>
           {/* Title */}
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -65,16 +66,16 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
             <Typography variant="h5" sx={{ fontWeight: 500, mb: 1 }}>
               {book.title}
             </Typography>
-            {book.available !== undefined && (
+            {book?.copies !== undefined && (
               <Chip
-                label={book.available ? 'Available' : 'Checked Out'}
-                color={book.available ? 'success' : 'error'}
+                label={book.copies > 0 ? 'Available' : 'Checked Out'}
+                color={book.copies > 0 ? 'success' : 'error'}
                 size="small"
               />
             )}
           </Box>
 
-          <Divider />
+          <Divider sx={{ m: '0 !important' }} />
 
           {/* Author */}
           <Box>
@@ -87,7 +88,7 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
             <Typography variant="body1">{book.author}</Typography>
           </Box>
 
-          <Divider />
+          <Divider sx={{ m: '0 !important' }} />
 
           {/* Publisher */}
           <Box>
@@ -100,7 +101,7 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
             <Typography variant="body1">{book.publisher}</Typography>
           </Box>
 
-          <Divider />
+          <Divider sx={{ m: '0 !important' }} />
 
           {/* Cost */}
           <Box>
@@ -121,14 +122,14 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
           {/* Optional fields */}
           {book?.libraryOfCongressCode && (
             <>
-              <Divider />
+              <Divider sx={{ m: '0 !important' }} />
               <Box>
                 <Typography
                   variant="subtitle2"
                   color="text.secondary"
                   sx={{ mb: 1 }}
                 >
-                  ISBN
+                  Library of Congress Code
                 </Typography>
                 <Typography variant="body1">
                   {book.libraryOfCongressCode}
@@ -139,7 +140,7 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
 
           {book.yearPublished && (
             <>
-              <Divider />
+              <Divider sx={{ m: '0 !important' }} />
               <Box>
                 <Typography
                   variant="subtitle2"
@@ -155,7 +156,7 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
 
           {book.genre && (
             <>
-              <Divider />
+              <Divider sx={{ m: '0 !important' }} />
               <Box>
                 <Typography
                   variant="subtitle2"
@@ -164,14 +165,18 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
                 >
                   Genre
                 </Typography>
-                <Chip label={book.genre} variant="outlined" />
+                <Stack direction={'row'} gap={1}>
+                  {book.genre.map((g) => (
+                    <Chip key={g} label={g} variant="filled" color="info" />
+                  ))}
+                </Stack>
               </Box>
             </>
           )}
 
           {book.description && (
             <>
-              <Divider />
+              <Divider sx={{ m: '0 !important' }} />
               <Box>
                 <Typography
                   variant="subtitle2"
@@ -192,7 +197,7 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
           )}
         </Stack>
       </Box>
-    </Box>
+    </Stack>
   );
 };
 

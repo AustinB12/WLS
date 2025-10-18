@@ -1,7 +1,6 @@
 import { createTheme } from '@mui/material';
 
 const theme = createTheme({
-  //   palette: { mode: 'dark' },
   colorSchemes: { dark: true, light: true },
   components: {
     // Name of the component
@@ -10,9 +9,22 @@ const theme = createTheme({
         color: 'textPrimary',
       },
     },
+    MuiCardContent: {
+      styleOverrides: {
+        root: {
+          ':last-child': {
+            paddingBottom: '8px',
+          },
+        },
+      },
+      defaultProps: {
+        sx: {
+          pb: '16px !important',
+        },
+      },
+    },
     MuiButtonBase: {
       defaultProps: {
-        // The props to change the default for.
         disableRipple: true, // No more ripple, on the whole application 💣!
       },
     },

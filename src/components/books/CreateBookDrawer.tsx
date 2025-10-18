@@ -161,16 +161,14 @@ const CreateBookDrawer: FC<CreateBookDrawerProps> = ({
         paper: {
           sx: {
             width: { xs: '100%', sm: '85%' },
-            maxWidth: '100vw',
+            maxWidth: '1200px',
           },
         },
       }}
     >
-      <Box
+      <Stack
         sx={{
           height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
         }}
       >
         {/* Header */}
@@ -369,7 +367,7 @@ const CreateBookDrawer: FC<CreateBookDrawerProps> = ({
             </Button>
           </Stack>
         </Box>
-      </Box>
+      </Stack>
     </Drawer>
   );
 };
