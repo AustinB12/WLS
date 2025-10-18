@@ -86,7 +86,7 @@ export const BookCard: React.FC<BookCardProps> = ({
         )}
 
         <Stack direction="row" spacing={1} sx={{ mt: 'auto' }}>
-          {book.available
+          {book.copies !== undefined
             ? onCheckout && (
                 <Button
                   onClick={() => onCheckout(book.id)}
