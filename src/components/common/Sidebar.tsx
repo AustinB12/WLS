@@ -8,6 +8,8 @@ import {
   ListItemText,
   Box,
   Divider,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import {
   Home,
@@ -17,11 +19,21 @@ import {
   Settings,
   Person,
 } from '@mui/icons-material';
+import { type PropsWithChildren } from 'react';
 
 const drawerWidth = 256;
 
-export const Sidebar = () => {
+export const Sidebar = ({
+  sidebarOpen,
+  setSidebarOpen,
+}: {
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+}) => {
   const location = useLocation();
+
+  const theme = useTheme();
+  const xsUp = useMediaQuery(theme.breakpoints.up('sm'));
 
   const isActive = (path: string) => {
     return (
@@ -42,21 +54,42 @@ export const Sidebar = () => {
     { text: 'Admin Panel', path: '/admin', icon: <Settings /> },
   ];
 
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
+  const Get_Drawer_Component = ({ children }: PropsWithChildren) => {
+    if (!xsUp) {
+      return (
+        <Drawer
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          sx={{
+            width: drawerWidth * 0.6,
+          }}
+        >
+          {children}
+        </Drawer>
+      );
+    }
+    return (
+      <Drawer
+        variant="permanent"
+        sx={{
           width: drawerWidth,
-          boxSizing: 'border-box',
-          position: 'relative',
-          height: 'calc(100vh - 64px)',
-          top: 0,
-        },
-      }}
-    >
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            position: 'relative',
+            height: 'calc(100vh - 64px)',
+            top: 0,
+          },
+        }}
+      >
+        {children}
+      </Drawer>
+    );
+  };
+
+  return (
+    <Get_Drawer_Component>
       <Box sx={{ overflow: 'auto', pt: 2 }}>
         <List>
           {menuItems.map((item) => (
@@ -65,6 +98,7 @@ export const Sidebar = () => {
                 component={Link}
                 to={item.path}
                 selected={isActive(item.path)}
+                onClick={() => !xsUp && setSidebarOpen(false)}
                 sx={{
                   mx: 1,
                   borderRadius: 1,
@@ -87,8 +121,8 @@ export const Sidebar = () => {
                 </ListItemIcon>
                 <ListItemText
                   primary={item.text}
-                  primaryTypographyProps={{
-                    fontWeight: isActive(item.path) ? 600 : 400,
+                  slotProps={{
+                    primary: { fontWeight: isActive(item.path) ? 600 : 400 },
                   }}
                 />
               </ListItemButton>
@@ -133,6 +167,6 @@ export const Sidebar = () => {
           ))}
         </List>
       </Box>
-    </Drawer>
+    </Get_Drawer_Component>
   );
 };

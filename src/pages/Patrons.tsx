@@ -1,23 +1,36 @@
-import { Container, Typography } from '@mui/material';
+import {
+  Container,
+  List,
+  ListItem,
+  Skeleton,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 
 import sb from '../utils/supabase';
 import type { Patron } from '../types';
 import { useEffect, useState } from 'react';
+import { ListViewCell } from '../components/common/ListViewCell';
 
 const columns: GridColDef[] = [
-  { field: 'firstName', headerName: 'First Name', width: 150 },
-  { field: 'lastName', headerName: 'Last Name', width: 150 },
-  { field: 'balance', headerName: 'Balance', width: 150 },
-  { field: 'birthday', headerName: 'Birthdate', width: 150, type: 'date' },
+  { field: 'id', headerName: 'ID' },
+  { field: 'firstName', headerName: 'First', flex: 1 },
+  { field: 'lastName', headerName: 'Last', flex: 1 },
+  { field: 'balance', headerName: 'Balance' },
+  { field: 'birthday', headerName: 'Birthdate', type: 'date' },
 ];
 
 export const Patrons = () => {
   const [patrons, setPatrons] = useState<Patron[]>([]);
+  const [loading, setLoading] = useState(true);
+  const theme = useTheme();
+  const xsUp = useMediaQuery(theme.breakpoints.up('sm'));
+
   //   const [selectedPatron, setSelectedPatron] = useState<Patron | null>(null);
   //   const [patronDetailsDrawerOpen, setPatronDetailsDrawerOpen] = useState(false);
   //   const [createPatronDrawerOpen, setCreatePatronDrawerOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
   //   const [error, setError] = useState<string | null>(null);
   //   const [searchTerm, setSearchTerm] = useState('');
 
@@ -65,7 +78,7 @@ export const Patrons = () => {
   }, []);
 
   return (
-    <Container sx={{ p: 3 }}>
+    <Container sx={{ p: 3, width: 1 }}>
       <Typography
         variant="h4"
         component="h1"
@@ -74,11 +87,39 @@ export const Patrons = () => {
       >
         Patrons
       </Typography>
-      <DataGrid
-        rows={patrons || []}
-        columns={columns}
-        loading={loading}
-      ></DataGrid>
+      {xsUp ? (
+        <DataGrid
+          showToolbar
+          rows={patrons || []}
+          columns={columns}
+          loading={loading}
+          label="Patrons"
+        ></DataGrid>
+      ) : loading ? (
+        <Skeleton variant="rectangular" height={'40vh'} />
+      ) : (
+        <List
+          sx={{
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 1,
+            py: 0,
+          }}
+        >
+          {patrons.map((patron, index) => (
+            <ListItem
+              key={patron.id}
+              sx={{
+                borderBottom: index < patrons.length - 1 ? '1px solid' : 'none',
+                borderColor: 'divider',
+                bgcolor: index % 2 === 0 ? 'background.paper' : '#1811d610',
+              }}
+            >
+              <ListViewCell key={patron.id} patron={patron} />
+            </ListItem>
+          ))}
+        </List>
+      )}
     </Container>
   );
 };

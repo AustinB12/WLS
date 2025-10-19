@@ -7,6 +7,7 @@ import { MyBooks } from './pages/MyBooks';
 import { AdminPanel } from './pages/AdminPanel';
 import { Dashboard } from './pages/Dashboard';
 import { Patrons } from './pages/Patrons';
+import { CheckInItem } from './pages/CheckInItem';
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ function App() {
             <Route path="my-books" element={<MyBooks />} />
             <Route path="patrons" element={<Patrons />} />
             <Route path="admin" element={<AdminPanel />} />
+            <Route path="checkin" element={<CheckInItem />} />
           </Route>
         </Routes>
       </Router>

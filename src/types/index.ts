@@ -95,3 +95,18 @@ export interface Patron {
   balance: number;
   birthday?: Date;
 }
+
+export interface Branch {
+  id: number;
+  branchName: string;
+  isMain: boolean;
+}
+
+export enum LibraryItemType {
+  Book = 'Book',
+  Periodical = 'Periodical',
+  Recording = 'Recording',
+  Video = 'Video',
+  Magazine = 'Magazine',
+  Audiobook = 'Audiobook',
+}

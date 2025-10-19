@@ -5,7 +5,6 @@ import {
   Drawer,
   Grid,
   Box,
-  IconButton,
   InputAdornment,
   Stack,
   TextField,
@@ -13,6 +12,7 @@ import {
   AlertTitle,
   Button,
   CircularProgress,
+  Fab,
 } from '@mui/material';
 import sb from '../utils/supabase';
 import React, { useEffect, useState } from 'react';
@@ -180,10 +180,22 @@ export const BookCatalogContent = (): JSX.Element => {
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
         onSearchKeyDown={handleSearchKeyDown}
-        onCreateClick={handleCreateBookClicked}
       />
       <BookGrid books={books} onBookDetailsClick={handleBookDetailsClicked} />
       {renderDrawers()}
+      <Fab
+        color="primary"
+        onClick={handleCreateBookClicked}
+        aria-label="Add book"
+        title="Add book"
+        sx={{
+          position: 'fixed',
+          bottom: '3vh',
+          right: '3vh',
+        }}
+      >
+        <Add />
+      </Fab>
     </>
   );
 };
@@ -209,14 +221,12 @@ interface BookSearchHeaderProps {
   searchTerm: string;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSearchKeyDown: (e: React.KeyboardEvent) => void;
-  onCreateClick: () => void;
 }
 
 const BookSearchHeader: React.FC<BookSearchHeaderProps> = ({
   searchTerm,
   onSearchChange,
   onSearchKeyDown,
-  onCreateClick,
 }) => {
   return (
     <Stack
@@ -224,7 +234,7 @@ const BookSearchHeader: React.FC<BookSearchHeaderProps> = ({
       spacing={2}
       sx={{ mb: 4, alignItems: 'center', justifyContent: 'space-between' }}
     >
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 4, width: '40%' }}>
         <TextField
           fullWidth
           placeholder="Search books..."
@@ -243,11 +253,6 @@ const BookSearchHeader: React.FC<BookSearchHeaderProps> = ({
             },
           }}
         />
-      </Box>
-      <Box>
-        <IconButton onClick={onCreateClick}>
-          <Add />
-        </IconButton>
       </Box>
     </Stack>
   );

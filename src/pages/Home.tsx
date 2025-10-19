@@ -17,6 +17,7 @@ import {
   LibraryAddCheck,
   TrendingUp,
 } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 
 export const Home = () => {
   return (
@@ -25,10 +26,48 @@ export const Home = () => {
         variant="h3"
         component="h1"
         gutterBottom
-        sx={{ fontWeight: 'bold', mb: 3, color: 'text.primary' }}
+        sx={{
+          fontWeight: 'bold',
+          mb: 3,
+          color: 'text.primary',
+          fontSize: 'calc(1.5rem + 2vw)',
+        }}
       >
-        Welcome to the WPL Management System
+        Welcome!
       </Typography>
+
+      <Grid container sx={{ mb: 2 }} spacing={2}>
+        <Grid size={{ xs: 6 }} sx={{ height: { xs: '4rem', sm: '8rem' } }}>
+          <Link to="/checkin" style={{ textDecoration: 'none' }}>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              startIcon={<LibraryAddCheck />}
+              sx={{
+                height: '100%',
+                fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
+              }}
+            >
+              Check In
+            </Button>
+          </Link>
+        </Grid>
+        <Grid size={{ xs: 6 }} sx={{ height: { xs: '4rem', sm: '8rem' } }}>
+          <Button
+            fullWidth
+            variant="contained"
+            color="secondary"
+            startIcon={<LibraryAdd />}
+            sx={{
+              height: '100%',
+              fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
+            }}
+          >
+            Check Out
+          </Button>
+        </Grid>
+      </Grid>
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
@@ -131,42 +170,6 @@ export const Home = () => {
               </List>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
-      <Grid container sx={{ mt: 4 }} spacing={2}>
-        <Grid
-          size={{ xs: 12, sm: 6 }}
-          sx={{ height: { xs: '4rem', sm: '8rem' } }}
-        >
-          <Button
-            fullWidth
-            variant="contained"
-            color="primary"
-            startIcon={<LibraryAddCheck />}
-            sx={{
-              height: '100%',
-              fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
-            }}
-          >
-            Check In
-          </Button>
-        </Grid>
-        <Grid
-          size={{ xs: 12, sm: 6 }}
-          sx={{ height: { xs: '4rem', sm: '8rem' } }}
-        >
-          <Button
-            fullWidth
-            variant="contained"
-            color="secondary"
-            startIcon={<LibraryAdd />}
-            sx={{
-              height: '100%',
-              fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
-            }}
-          >
-            Check Out
-          </Button>
         </Grid>
       </Grid>
     </Container>
