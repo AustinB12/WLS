@@ -8,6 +8,7 @@ import { AdminPanel } from './pages/AdminPanel';
 import { Dashboard } from './pages/Dashboard';
 import { Patrons } from './pages/Patrons';
 import { CheckInItem } from './pages/CheckInItem';
+import { CheckOutItem } from './pages/CheckOutItem';
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ function App() {
             <Route path="patrons" element={<Patrons />} />
             <Route path="admin" element={<AdminPanel />} />
             <Route path="checkin" element={<CheckInItem />} />
+            <Route path="checkout" element={<CheckOutItem />} />
           </Route>
         </Routes>
       </Router>

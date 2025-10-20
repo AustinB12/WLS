@@ -46,7 +46,7 @@ export const Home = () => {
               startIcon={<LibraryAddCheck />}
               sx={{
                 height: '100%',
-                fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
+                fontSize: { xs: '1rem', sm: '1.25rem', md: '2rem' },
               }}
             >
               Check In
@@ -54,18 +54,20 @@ export const Home = () => {
           </Link>
         </Grid>
         <Grid size={{ xs: 6 }} sx={{ height: { xs: '4rem', sm: '8rem' } }}>
-          <Button
-            fullWidth
-            variant="contained"
-            color="secondary"
-            startIcon={<LibraryAdd />}
-            sx={{
-              height: '100%',
-              fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
-            }}
-          >
-            Check Out
-          </Button>
+          <Link to="/checkout" style={{ textDecoration: 'none' }}>
+            <Button
+              fullWidth
+              variant="contained"
+              color="secondary"
+              startIcon={<LibraryAdd />}
+              sx={{
+                height: '100%',
+                fontSize: { xs: '1rem', sm: '1.25rem', md: '2rem' },
+              }}
+            >
+              Check Out
+            </Button>
+          </Link>
         </Grid>
       </Grid>
 
