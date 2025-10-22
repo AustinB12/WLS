@@ -353,6 +353,34 @@ export const dataService = {
     return data || [];
   },
 
+  async get_all_copy_ids(): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('item_copies')
+      .select('id')
+      .order('status', { ascending: true });
+
+    if (error) {
+      throw new Error(`Failed to fetch item copies: ${error.message}`);
+    }
+
+    return data.map((item) => item.id) || [];
+  },
+
+  async get_copy_by_id(copy_id: string): Promise<Item_Copy | null> {
+    const { data, error } = await supabase
+      .from('item_copies')
+      .select('*')
+      .eq('id', copy_id)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null; // No rows found
+      throw new Error(`Failed to fetch item copy: ${error.message}`);
+    }
+
+    return data;
+  },
+
   async get_all_branches(): Promise<Branch[]> {
     const { data, error } = await supabase
       .from('branches')
