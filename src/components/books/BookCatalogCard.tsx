@@ -41,7 +41,7 @@ export const BookCatalogCard: React.FC<BookCatalogCardProps> = ({
           cursor: 'pointer',
         }}
         title={`${book.title}`}
-        image={book?.coverImageUrl || undefined}
+        image={book?.cover_image_url || undefined}
         component={'img'}
       />
       <CardContent
@@ -59,11 +59,11 @@ export const BookCatalogCard: React.FC<BookCatalogCardProps> = ({
         <Typography variant="body2" color="text.secondary" gutterBottom>
           {'By: ' + book.author}
         </Typography>
-        {(book.publisher || book.yearPublished) && (
+        {(book.publisher || book.year_published) && (
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             {book.publisher && `Published By: ${book.publisher}`}
-            {book.yearPublished && book.publisher && ' in '}
-            {book.yearPublished && book.yearPublished?.toString()}
+            {book.year_published && book.publisher && ' in '}
+            {book.year_published && book.year_published?.toString()}
           </Typography>
         )}
         {book?.genre && book.genre.length > 0 && (

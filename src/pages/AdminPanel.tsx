@@ -24,10 +24,10 @@ import sb from '../utils/supabase';
 
 export const AdminPanel = () => {
   const [createBookDrawerOpen, setCreateBookDrawerOpen] = useState(false);
-  const [error, setError] = useState<string | null>('aadsf');
+  const [error, setError] = useState<string | null>('');
 
   async function createBook(bookData: BookFormData) {
-    sb.from('books')
+    sb.from('items')
       .insert(bookData)
       .then(({ error }) => {
         if (error) {

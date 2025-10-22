@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/common/Layout';
 import { Home } from './pages/Home';
-import { BookCatalog, BookCatalogContent } from './pages/BookCatalog';
+import { ItemCatalog, ItemCatalogContent } from './pages/ItemCatalog';
 import { MyBooks } from './pages/MyBooks';
 import { AdminPanel } from './pages/AdminPanel';
 import { Dashboard } from './pages/Dashboard';
@@ -23,9 +23,9 @@ function App() {
             <Route
               path="catalog"
               element={
-                <BookCatalog>
-                  <BookCatalogContent />
-                </BookCatalog>
+                <ItemCatalog>
+                  <ItemCatalogContent />
+                </ItemCatalog>
               }
             />
             <Route path="my-books" element={<MyBooks />} />

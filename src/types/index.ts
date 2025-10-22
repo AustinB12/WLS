@@ -1,18 +1,3 @@
-export interface Book {
-  id: string;
-  title: string;
-  author: string;
-  publisher: string;
-  yearPublished?: number;
-  genre?: Genre[];
-  description?: string;
-  cover_image_url?: string;
-  cost: number;
-  libraryOfCongressCode?: string;
-  copies?: number;
-  coverImageUrl?: string;
-}
-
 export interface Transaction {
   id: string;
   book_id: string;
@@ -52,29 +37,30 @@ export interface BookFilters {
 }
 
 export enum Genre {
+  Academic = 'Academic',
+  Art = 'Art',
+  Biography = 'Biography',
+  Business = 'Business',
+  Children = 'Children',
+  Cooking = 'Cooking',
+  Drama = 'Drama',
+  Fantasy = 'Fantasy',
   Fiction = 'Fiction',
-  NonFiction = 'Non-Fiction',
+  Health = 'Health',
+  History = 'History',
+  Horror = 'Horror',
   Mystery = 'Mystery',
+  NonFiction = 'Non-Fiction',
+  Poetry = 'Poetry',
+  Political = 'Political',
+  Reference = 'Reference',
   Romance = 'Romance',
   ScienceFiction = 'Science Fiction',
-  Fantasy = 'Fantasy',
-  Biography = 'Biography',
-  History = 'History',
   SelfHelp = 'Self-Help',
   Technology = 'Technology',
-  Business = 'Business',
-  Health = 'Health',
-  Travel = 'Travel',
-  Cooking = 'Cooking',
-  Art = 'Art',
-  Poetry = 'Poetry',
-  Drama = 'Drama',
-  Horror = 'Horror',
   Thriller = 'Thriller',
-  Children = 'Children',
+  Travel = 'Travel',
   YoungAdult = 'Young Adult',
-  Academic = 'Academic',
-  Reference = 'Reference',
 }
 
 export interface BookFormData {
@@ -90,23 +76,115 @@ export interface BookFormData {
 
 export interface Patron {
   id: number;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   balance: number;
   birthday?: Date;
 }
 
 export interface Branch {
   id: number;
-  branchName: string;
-  isMain: boolean;
+  branch_name: string;
+  is_main: boolean;
 }
 
-export enum LibraryItemType {
+export enum Library_Item_Type {
   Book = 'Book',
   Periodical = 'Periodical',
   Recording = 'Recording',
   Video = 'Video',
   Magazine = 'Magazine',
   Audiobook = 'Audiobook',
+}
+
+export interface CatalogItem {
+  id: string;
+  title: string;
+  item_type: Library_Item_Type;
+  description?: string;
+  publication_year?: number;
+}
+
+export type Condition = 'New' | 'Good' | 'Fair' | 'Poor';
+export type AvailabilityStatus =
+  | 'Available'
+  | 'Checked Out'
+  | 'Reserved'
+  | 'Processing'
+  | 'Damaged'
+  | 'Lost';
+
+export interface Item_Copy {
+  id: string;
+  catalog_item_id: string;
+  branch_id: number;
+  status: AvailabilityStatus;
+  condition?: Condition;
+  cost: number;
+  notes?: string;
+}
+
+export interface Book {
+  id: string;
+  title: string;
+  description?: string;
+  publisher: string;
+  author: string;
+  year_published?: number;
+  genre?: Genre[];
+  cover_image_url?: string;
+  cost: number;
+  congress_code?: string;
+}
+
+export interface Recording {
+  id: string;
+  title: string;
+  description?: string;
+  artist: string;
+  label: string;
+  publication_year?: number;
+  duration_seconds?: number;
+  congress_code?: string;
+}
+
+export interface Video {
+  id: string;
+  title: string;
+  description?: string;
+  director: string;
+  producer: string;
+  publication_year?: number;
+  duration_minutes?: number;
+  congress_code?: string;
+}
+
+export interface Periodical {
+  id: string;
+  title: string;
+  description?: string;
+  issue_number: string;
+  publication_year?: number;
+  publisher: string;
+  congress_code?: string;
+}
+
+export interface Magazine {
+  id: string;
+  title: string;
+  description?: string;
+  issue_number: string;
+  publication_year?: number;
+  publisher: string;
+  congress_code?: string;
+}
+
+export interface Audiobook {
+  id: string;
+  title: string;
+  description?: string;
+  narrator: string;
+  publication_year?: number;
+  duration_hours?: number;
+  congress_code?: string;
 }

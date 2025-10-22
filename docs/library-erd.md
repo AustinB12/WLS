@@ -4,8 +4,8 @@
 erDiagram
     PATRONS {
         string id PK
-        string firstName
-        string lastName
+        string first_name
+        string last_name
         string email UK
         string phone
         date birthday

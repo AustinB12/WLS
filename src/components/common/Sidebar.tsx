@@ -15,7 +15,6 @@ import {
   Home,
   Dashboard,
   MenuBook,
-  LibraryBooks,
   Settings,
   Person,
 } from '@mui/icons-material';
@@ -45,9 +44,8 @@ export const Sidebar = ({
   const menuItems = [
     { text: 'Home', path: '/', icon: <Home /> },
     { text: 'Dashboard', path: '/dashboard', icon: <Dashboard /> },
-    { text: 'Book Catalog', path: '/catalog', icon: <MenuBook /> },
+    { text: 'Catalog', path: '/catalog', icon: <MenuBook /> },
     { text: 'Patrons', path: '/patrons', icon: <Person /> },
-    { text: 'My Books', path: '/my-books', icon: <LibraryBooks /> },
   ];
 
   const adminItems = [

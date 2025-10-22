@@ -14,7 +14,7 @@ const PatronsList: React.FC = () => {
       setLoading(true);
       const { data, error } = await sb
         .from('patrons')
-        .select('id, firstName, lastName, balance, birthday');
+        .select('id, first_name, last_name, balance, birthday');
 
       if (error) {
         return;
@@ -26,8 +26,8 @@ const PatronsList: React.FC = () => {
             (patron) =>
               ({
                 id: patron.id,
-                firstName: patron.firstName,
-                lastName: patron.lastName,
+                first_name: patron.first_name,
+                last_name: patron.last_name,
                 balance: patron.balance,
                 birthday: patron?.birthday
                   ? new Date(patron.birthday + 'T06:00:00Z')

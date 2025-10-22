@@ -14,7 +14,7 @@ export function ListViewCell({ patron }: { patron: Patron }) {
       <Avatar sx={{ width: 32, height: 32, backgroundColor: 'teal' }} />
       <Stack sx={{ flexGrow: 1 }}>
         <Typography variant="body2" fontWeight={500}>
-          {patron.firstName} {patron.lastName}
+          {patron.first_name} {patron.last_name}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {patron?.birthday ? `${patron.birthday.toLocaleDateString()}` : ''}

@@ -1,8 +1,5 @@
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
-
-import sb from '../../utils/supabase';
-import type { Book } from '../../types';
-import { useEffect, useState, useCallback } from 'react';
+import { useBooks } from '../../hooks/useBooks';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID' },
@@ -19,47 +16,11 @@ export const BooksDataGrid: React.FC<BooksDataGridProps> = ({
   onError,
   cols = columns,
 }) => {
-  const [books, setBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: books, isLoading: loading, error } = useBooks();
 
-  const getBooks = useCallback(async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await sb
-        .from('books')
-        .select('id, title, author');
-
-      if (error) {
-        onError?.(error.message);
-        return;
-      }
-
-      if (data) {
-        setBooks(
-          data.map(
-            (book) =>
-              ({
-                id: book.id,
-                title: book.title,
-                author: book.author,
-              }) as Book
-          )
-        );
-      }
-    } catch (err) {
-      if (err instanceof Error) {
-        onError?.(err.message);
-      } else {
-        onError?.('An unknown error occurred');
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [onError]);
-
-  useEffect(() => {
-    getBooks();
-  }, [getBooks]);
+  if (error && onError) {
+    onError(error.message);
+  }
 
   return (
     <DataGrid

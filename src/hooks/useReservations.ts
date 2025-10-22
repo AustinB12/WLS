@@ -8,16 +8,16 @@ export const useReservations = () => {
   });
 };
 
-export const useReserveBook = () => {
-  const queryClient = useQueryClient();
+// export const useReserveBook = () => {
+//   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: dataService.reserveBook,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reservations'] });
-    },
-  });
-};
+//   return useMutation({
+//     mutationFn: dataService.reserveBook,
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['reservations'] });
+//     },
+//   });
+// };
 
 export const useCancelReservation = () => {
   const queryClient = useQueryClient();

@@ -15,17 +15,17 @@ export const useOverdueTransactions = () => {
   });
 };
 
-export const useCheckoutBook = () => {
-  const queryClient = useQueryClient();
+// export const useCheckoutBook = () => {
+//   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: dataService.checkoutBook,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['books'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-    },
-  });
-};
+//   return useMutation({
+//     mutationFn: dataService.checkoutBook,
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['books'] });
+//       queryClient.invalidateQueries({ queryKey: ['transactions'] });
+//     },
+//   });
+// };
 
 export const useReturnBook = () => {
   const queryClient = useQueryClient();

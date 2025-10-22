@@ -6,8 +6,8 @@ import { useEffect, useState, useCallback } from 'react';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID' },
-  { field: 'firstName', headerName: 'First', flex: 1 },
-  { field: 'lastName', headerName: 'Last', flex: 1 },
+  { field: 'first_name', headerName: 'First', flex: 1 },
+  { field: 'last_name', headerName: 'Last', flex: 1 },
   { field: 'balance', headerName: 'Balance' },
   { field: 'birthday', headerName: 'Birthdate', type: 'date' },
 ];
@@ -29,7 +29,7 @@ export const PatronsDataGrid: React.FC<PatronsDataGridProps> = ({
       setLoading(true);
       const { data, error } = await sb
         .from('patrons')
-        .select('id, firstName, lastName, balance, birthday');
+        .select('id, first_name, last_name, balance, birthday');
 
       if (error) {
         onError?.(error.message);
@@ -42,8 +42,8 @@ export const PatronsDataGrid: React.FC<PatronsDataGridProps> = ({
             (patron) =>
               ({
                 id: patron.id,
-                firstName: patron.firstName,
-                lastName: patron.lastName,
+                first_name: patron.first_name,
+                last_name: patron.last_name,
                 balance: patron.balance,
                 birthday: patron?.birthday
                   ? new Date(patron.birthday + 'T06:00:00Z')

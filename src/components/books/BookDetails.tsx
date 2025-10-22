@@ -66,13 +66,6 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
             <Typography variant="h5" sx={{ fontWeight: 500, mb: 1 }}>
               {book.title}
             </Typography>
-            {book?.copies !== undefined && (
-              <Chip
-                label={book.copies > 0 ? 'Available' : 'Checked Out'}
-                color={book.copies > 0 ? 'success' : 'error'}
-                size="small"
-              />
-            )}
           </Box>
 
           <Divider sx={{ m: '0 !important' }} />
@@ -120,7 +113,7 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
           </Box>
 
           {/* Optional fields */}
-          {book?.libraryOfCongressCode && (
+          {book?.congress_code && (
             <>
               <Divider sx={{ m: '0 !important' }} />
               <Box>
@@ -131,14 +124,12 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
                 >
                   Library of Congress Code
                 </Typography>
-                <Typography variant="body1">
-                  {book.libraryOfCongressCode}
-                </Typography>
+                <Typography variant="body1">{book.congress_code}</Typography>
               </Box>
             </>
           )}
 
-          {book.yearPublished && (
+          {book.year_published && (
             <>
               <Divider sx={{ m: '0 !important' }} />
               <Box>
@@ -149,7 +140,7 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
                 >
                   Published Year
                 </Typography>
-                <Typography variant="body1">{book.yearPublished}</Typography>
+                <Typography variant="body1">{book.year_published}</Typography>
               </Box>
             </>
           )}

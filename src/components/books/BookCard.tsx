@@ -16,11 +16,7 @@ interface BookCardProps {
   onCheckout?: (bookId: string) => void;
 }
 
-export const BookCard: React.FC<BookCardProps> = ({
-  book,
-  onReserve,
-  onCheckout,
-}) => {
+export const BookCard: React.FC<BookCardProps> = ({ book }) => {
   return (
     <Card
       sx={{
@@ -60,7 +56,7 @@ export const BookCard: React.FC<BookCardProps> = ({
         </Typography>
 
         <Typography variant="body2" color="text.secondary" gutterBottom>
-          {book.publisher} • {book.yearPublished}
+          {book.publisher} • {book.year_published}
         </Typography>
 
         <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -86,29 +82,24 @@ export const BookCard: React.FC<BookCardProps> = ({
         )}
 
         <Stack direction="row" spacing={1} sx={{ mt: 'auto' }}>
-          {book.copies !== undefined
-            ? onCheckout && (
-                <Button
-                  onClick={() => onCheckout(book.id)}
-                  variant="contained"
-                  startIcon={<CheckCircle />}
-                  fullWidth
-                  size="small"
-                >
-                  Checkout
-                </Button>
-              )
-            : onReserve && (
-                <Button
-                  onClick={() => onReserve(book.id)}
-                  variant="outlined"
-                  startIcon={<BookmarkAdd />}
-                  fullWidth
-                  size="small"
-                >
-                  Reserve
-                </Button>
-              )}
+          <Button
+            // onClick={() => onCheckout(book.id)}
+            variant="contained"
+            startIcon={<CheckCircle />}
+            fullWidth
+            size="small"
+          >
+            Checkout
+          </Button>
+          <Button
+            // onClick={() => onReserve(book.id)}
+            variant="outlined"
+            startIcon={<BookmarkAdd />}
+            fullWidth
+            size="small"
+          >
+            Reserve
+          </Button>
         </Stack>
       </CardContent>
     </Card>

@@ -40,7 +40,7 @@ export const Header = ({
       setLoading(true);
       const { data, error } = await sb
         .from('branches')
-        .select('id, branchName, isMain');
+        .select('id, branch_name, is_main');
       if (error) {
         // setError(error.message);
         return;
@@ -52,8 +52,8 @@ export const Header = ({
             (branch) =>
               ({
                 id: branch.id,
-                branchName: branch.branchName,
-                isMain: branch.isMain,
+                branch_name: branch.branch_name,
+                is_main: branch.is_main,
               }) as Branch
           )
         );
@@ -76,7 +76,7 @@ export const Header = ({
   useEffect(() => {
     if (branches && branches.length > 0 && !selectedBranchId) {
       setSelectedBranchId(
-        branches.find((branch) => branch.isMain)?.id.toString() ||
+        branches.find((branch) => branch.is_main)?.id.toString() ||
           branches[0].id.toString()
       );
     }
@@ -140,7 +140,7 @@ export const Header = ({
                   {branches &&
                     branches.map((branch) => (
                       <MenuItem key={branch.id} value={branch.id.toString()}>
-                        {branch.branchName}
+                        {branch.branch_name}
                       </MenuItem>
                     ))}
                 </Select>

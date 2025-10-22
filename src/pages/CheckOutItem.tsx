@@ -25,11 +25,11 @@ const steps = ['Select Patron', 'Select Book', 'Confirm Details'];
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID' },
   {
-    field: 'firstName',
+    field: 'first_name',
     headerName: 'Name',
     flex: 1,
     valueGetter: (_value, row) => {
-      return `${row.firstName[0] || ''}. ${row.lastName || ''}`;
+      return `${row.first_name[0] || ''}. ${row.last_name || ''}`;
     },
   },
 ];

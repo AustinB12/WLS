@@ -8,15 +8,15 @@ import {
   Select,
 } from '@mui/material';
 import { useState, type FC } from 'react';
-import { LibraryItemType } from '../types';
+import { Library_Item_Type } from '../types';
 import { type SelectChangeEvent } from '@mui/material/Select';
 import { keyframes } from '@emotion/react';
 
 export const CheckInItem: FC = () => {
-  const [value, setValue] = useState<LibraryItemType>(LibraryItemType.Book);
+  const [value, setValue] = useState<Library_Item_Type>(Library_Item_Type.Book);
 
   const handleChange = (event: SelectChangeEvent) => {
-    setValue(event.target.value as LibraryItemType);
+    setValue(event.target.value as Library_Item_Type);
   };
   return (
     <Container sx={{ pt: 4, maxWidth: '7xl' }}>
@@ -43,7 +43,7 @@ export const CheckInItem: FC = () => {
             value={value}
             onChange={handleChange}
           >
-            {Object.values(LibraryItemType).map((item) => (
+            {Object.values(Library_Item_Type).map((item) => (
               <MenuItem key={item} value={item}>
                 {item}
               </MenuItem>
