@@ -8,29 +8,51 @@ import {
   Autocomplete,
   TextField,
   Grid,
+  Button,
 } from '@mui/material';
-import { useState, type FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import { type SelectChangeEvent } from '@mui/material/Select';
 import { useAllCopies, useCopyById } from '../hooks/useCopies';
+import { useBranchesContext } from '../hooks/useBranchHooks';
 
 const conditions: string[] = ['New', 'Good', 'Fair', 'Poor'];
 
 export const CheckInItem: FC = () => {
   const [value, setValue] = useState<string | null>('');
   const [inputValue, setInputValue] = useState('');
+  const [new_note, set_new_note] = useState('');
+  const [selected_branch_id, set_selected_branch_id] = useState<string>('');
+
+  const { branches, loading } = useBranchesContext();
 
   const { data: copies } = useAllCopies();
 
   const { data: copy } = useCopyById(value || '');
 
-  const [condition, setCondition] = useState('');
+  const [condition, set_condition] = useState('');
 
   const handle_condition_change = (event: SelectChangeEvent) => {
-    setCondition(event.target.value as string);
+    set_condition(event.target.value as string);
   };
 
+  const handle_notes_change = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (copy) {
+      set_new_note(event.target.value);
+    }
+  };
+
+  const handle_change_branch = (event: SelectChangeEvent) => {
+    set_selected_branch_id(event.target.value);
+  };
+
+  useEffect(() => {
+    set_new_note(copy?.notes || '');
+    set_condition(copy?.condition || '');
+    set_selected_branch_id(copy?.branch_id ? copy.branch_id.toString() : '');
+  }, [copy?.notes, copy?.condition, copy?.branch_id]);
+
   return (
-    <Container sx={{ pt: 4, maxWidth: '7xl' }}>
+    <Container sx={{ pt: 4, maxWidth: '7xl', height: '100%' }}>
       <Typography
         variant="h4"
         component="h1"
@@ -89,10 +111,40 @@ export const CheckInItem: FC = () => {
             label="Notes"
             multiline
             rows={4}
-            value={copy?.notes || ''}
+            value={new_note}
+            onChange={handle_notes_change}
           />
         </Grid>
+        <Grid size={{ xs: 6 }}>
+          <FormControl fullWidth>
+            <InputLabel id="branch-select-label">{'New Location?'}</InputLabel>
+            <Select
+              disabled={!copy || loading}
+              label={'New Location?'}
+              labelId="branch-select-label"
+              id="branch-select"
+              value={selected_branch_id}
+              onChange={handle_change_branch}
+            >
+              {branches &&
+                branches.map((branch) => (
+                  <MenuItem key={branch.id} value={branch.id.toString()}>
+                    {branch.branch_name}
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+        </Grid>
       </Grid>
+      <Button
+        size="large"
+        onClick={() => alert('Check in item: ' + value)}
+        disabled={!value}
+        variant="contained"
+        sx={(theme) => ({ position: 'absolute', bottom: theme.spacing(4) })}
+      >
+        {'Check In'}
+      </Button>
     </Container>
   );
 };

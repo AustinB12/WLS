@@ -33,7 +33,7 @@ export const Home = () => {
           fontSize: 'calc(1.5rem + 2vw)',
         }}
       >
-        Welcome!
+        {'Welcome!'}
       </Typography>
 
       <Grid container sx={{ mb: 2 }} spacing={2}>

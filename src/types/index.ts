@@ -80,6 +80,7 @@ export interface Patron {
   last_name: string;
   balance: number;
   birthday?: Date;
+  card_expiration_date: Date;
 }
 
 export interface Branch {

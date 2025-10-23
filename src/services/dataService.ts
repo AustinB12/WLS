@@ -6,6 +6,7 @@ import type {
   CatalogItem,
   Item_Copy,
   Branch,
+  Patron,
 } from '../types';
 import { Genre } from '../types';
 import supabase from '../utils/supabase';
@@ -61,7 +62,7 @@ export const dataService = {
 
   async createBook(book: Omit<Book, 'id'>): Promise<Book> {
     const { data, error } = await supabase
-      .from('books')
+      .from('catalog_items')
       .insert([book])
       .select()
       .single();
@@ -389,6 +390,19 @@ export const dataService = {
 
     if (error) {
       throw new Error(`Failed to fetch branches: ${error.message}`);
+    }
+
+    return data || [];
+  },
+
+  async get_all_patrons(): Promise<Patron[]> {
+    const { data, error } = await supabase
+      .from('patrons')
+      .select('*')
+      .order('last_name', { ascending: true });
+
+    if (error) {
+      throw new Error(`Failed to fetch patrons: ${error.message}`);
     }
 
     return data || [];

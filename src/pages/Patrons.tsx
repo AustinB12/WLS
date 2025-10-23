@@ -13,7 +13,7 @@ export const Patrons = () => {
   };
 
   return (
-    <Container sx={{ p: 3, width: 1 }}>
+    <Container maxWidth="lg" sx={{ p: 3 }}>
       <Typography
         variant="h4"
         component="h1"

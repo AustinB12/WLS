@@ -1,15 +1,47 @@
-import { DataGrid, type GridColDef } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  type GridColDef,
+  type GridRenderCellParams,
+} from '@mui/x-data-grid';
 
-import sb from '../../utils/supabase';
-import type { Patron } from '../../types';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect } from 'react';
+import { useAllPatrons } from '../../hooks/usePatrons';
+import { formatDate, isOverdue } from '../../utils/dateUtils';
+import { Box } from '@mui/material';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID' },
   { field: 'first_name', headerName: 'First', flex: 1 },
-  { field: 'last_name', headerName: 'Last', flex: 1 },
-  { field: 'balance', headerName: 'Balance' },
-  { field: 'birthday', headerName: 'Birthdate', type: 'date' },
+  { field: 'last_name', headerName: 'Last', flex: 2 },
+  { field: 'balance', headerName: 'Balance', flex: 1 },
+  {
+    field: 'birthday',
+    headerName: 'Birthday',
+    valueGetter: (value) => {
+      if (!value) return;
+      return formatDate(value);
+    },
+    flex: 3,
+    renderCell: (params: GridRenderCellParams) => <Box>{params.value}</Box>,
+  },
+  {
+    field: 'card_expiration_date',
+    headerName: 'Card Expiration',
+    valueGetter: (value) => {
+      if (!value) return;
+      return formatDate(value);
+    },
+    flex: 3,
+    renderCell: (params: GridRenderCellParams) => (
+      <Box
+        sx={{
+          color: !isOverdue(params.value) ? 'inherit' : 'error.main',
+        }}
+      >
+        {params.value}
+      </Box>
+    ),
+  },
 ];
 
 interface PatronsDataGridProps {
@@ -21,51 +53,13 @@ export const PatronsDataGrid: React.FC<PatronsDataGridProps> = ({
   onError,
   cols = columns,
 }) => {
-  const [patrons, setPatrons] = useState<Patron[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const getPatrons = useCallback(async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await sb
-        .from('patrons')
-        .select('id, first_name, last_name, balance, birthday');
-
-      if (error) {
-        onError?.(error.message);
-        return;
-      }
-
-      if (data) {
-        setPatrons(
-          data.map(
-            (patron) =>
-              ({
-                id: patron.id,
-                first_name: patron.first_name,
-                last_name: patron.last_name,
-                balance: patron.balance,
-                birthday: patron?.birthday
-                  ? new Date(patron.birthday + 'T06:00:00Z')
-                  : null,
-              }) as Patron
-          )
-        );
-      }
-    } catch (err) {
-      if (err instanceof Error) {
-        onError?.(err.message);
-      } else {
-        onError?.('An unknown error occurred');
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [onError]);
+  const { data: patrons, isLoading: loading, error } = useAllPatrons();
 
   useEffect(() => {
-    getPatrons();
-  }, [getPatrons]);
+    if (error && onError) {
+      onError(error.message);
+    }
+  }, [error, onError]);
 
   return (
     <DataGrid
@@ -78,7 +72,7 @@ export const PatronsDataGrid: React.FC<PatronsDataGridProps> = ({
       pageSizeOptions={[15, 10, 5]}
       initialState={{
         pagination: {
-          paginationModel: { pageSize: 5, page: 0 },
+          paginationModel: { pageSize: 10, page: 0 },
         },
       }}
       slotProps={{
