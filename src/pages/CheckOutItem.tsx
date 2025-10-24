@@ -9,139 +9,72 @@ import {
   Step,
   StepLabel,
   Stepper,
+  Paper,
 } from '@mui/material';
 import { LibraryAdd } from '@mui/icons-material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-// import sb from '../utils/supabase';
-// import type { Book } from '../types';
 import { PatronsDataGrid } from '../components/patrons/PatronsDataGrid';
-import type { GridColDef } from '@mui/x-data-grid';
-import { BooksDataGrid } from '../components/books/BookDataGrid';
+import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { CopiesDataGrid } from '../components/copies/CopiesDataGrid';
+import { format_date, is_overdue } from '../utils/dateUtils';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 
-const steps = ['Select Patron', 'Select Book', 'Confirm Details'];
+const two_weeks_from_now = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // Default 2 weeks from now
+
+const steps = ['Select Patron', 'Select Item', 'Confirm Details'];
 
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID' },
+  { field: 'id', headerName: 'ID', width: 50 },
   {
     field: 'first_name',
-    headerName: 'Name',
+    headerName: 'First Name',
     flex: 1,
-    valueGetter: (_value, row) => {
-      return `${row.first_name[0] || ''}. ${row.last_name || ''}`;
+  },
+  { field: 'last_name', headerName: 'Last Name', flex: 1 },
+  {
+    field: 'card_expiration_date',
+    headerName: 'Card Expiration',
+    valueGetter: (value) => {
+      if (!value) return;
+      return format_date(value);
     },
+    flex: 3,
+    renderCell: (params: GridRenderCellParams) => (
+      <Box
+        sx={{
+          color: !is_overdue(params.value) ? 'inherit' : 'error.main',
+        }}
+      >
+        {params.value}
+      </Box>
+    ),
   },
 ];
 
-// interface CheckOutFormData {
-//   patronId: string;
-//   bookId: string;
-//   dueDate: Date;
-// }
+interface CheckOutFormData {
+  patron_id: string;
+  item_id: string;
+  due_date: Date;
+}
 
 export const CheckOutItem: React.FC = () => {
-  //   const [formData, setFormData] = useState<CheckOutFormData>({
-  //     patronId: '',
-  //     bookId: '',
-  //     dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // Default 2 weeks from now
-  //   });
+  const [formData, setFormData] = useState<CheckOutFormData>({
+    patron_id: '',
+    item_id: '',
+    due_date: two_weeks_from_now,
+  });
 
-  //   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
-  //   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   const [activeStep, setActiveStep] = useState(0);
   const [skipped, setSkipped] = useState(new Set<number>());
 
-  //   const handleCheckOut = useCallback(
-  //     async (e: React.FormEvent) => {
-  //       e.preventDefault();
-
-  //       if (
-  //         !formData.patronId.trim() ||
-  //         !formData.bookId.trim() ||
-  //         !selectedBook
-  //       ) {
-  //         setError('Please fill in all required fields and select a valid book');
-  //         return;
-  //       }
-
-  //       try {
-  //         setLoading(true);
-  //         setError(null);
-
-  //         // Create transaction record
-  //         const transactionData = {
-  //           book_id: selectedBook.id,
-  //           patron_id: formData.patronId,
-  //           transaction_type: 'checkout' as const,
-  //           checkout_date: new Date().toISOString(),
-  //           due_date: formData.dueDate.toISOString(),
-  //           status: 'active' as const,
-  //         };
-
-  //         const { error: transactionError } = await sb
-  //           .from('transactions')
-  //           .insert(transactionData);
-
-  //         if (transactionError) {
-  //           setError(
-  //             'Failed to create checkout record: ' + transactionError.message
-  //           );
-  //           return;
-  //         }
-
-  //         // Update book availability
-  //         const { error: bookUpdateError } = await sb
-  //           .from('books')
-  //           .update({ available: false })
-  //           .eq('id', selectedBook.id);
-
-  //         if (bookUpdateError) {
-  //           setError(
-  //             'Failed to update book availability: ' + bookUpdateError.message
-  //           );
-  //           return;
-  //         }
-
-  //         setSuccess(
-  //           `Successfully checked out "${selectedBook.title}" to patron ${formData.patronId}`
-  //         );
-
-  //         // Reset form
-  //         setFormData({
-  //           patronId: '',
-  //           bookId: '',
-  //           dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-  //         });
-  //         setSelectedBook(null);
-  //       } catch (err) {
-  //         setError(
-  //           err instanceof Error ? err.message : 'An unexpected error occurred'
-  //         );
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     },
-  //     [formData, selectedBook]
-  //   );
-
   const handleRetry = useCallback(() => {
     setError(null);
     setSuccess(null);
   }, []);
-
-  //   if (loading) {
-  //     return (
-  //       <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
-  //         <Typography>Processing checkout...</Typography>
-  //       </Container>
-  //     );
-  //   }
-
-  //!===
 
   const isStepOptional = (step: number) => {
     return step === 8881;
@@ -151,25 +84,23 @@ export const CheckOutItem: React.FC = () => {
     return skipped.has(step);
   };
 
-  const handleNext = () => {
-    let newSkipped = skipped;
+  const handle_next = () => {
+    let new_skipped = skipped;
     if (isStepSkipped(activeStep)) {
-      newSkipped = new Set(newSkipped.values());
-      newSkipped.delete(activeStep);
+      new_skipped = new Set(new_skipped.values());
+      new_skipped.delete(activeStep);
     }
 
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(newSkipped);
+    setSkipped(new_skipped);
   };
 
-  const handleBack = () => {
+  const handle_back = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleSkip = () => {
+  const handle_skip = () => {
     if (!isStepOptional(activeStep)) {
-      // You probably want to guard against something like this,
-      // it should never occur unless someone's actively trying to break something.
       throw new Error("You can't skip a step that isn't optional.");
     }
 
@@ -185,15 +116,32 @@ export const CheckOutItem: React.FC = () => {
     setActiveStep(0);
   };
 
-  //!===
+  const is_next_disabled = () => {
+    if (activeStep === 0 && !formData.patron_id) return true;
+
+    if (activeStep === 1 && !formData.item_id) return true;
+
+    if (activeStep === 2 && !formData.due_date) return true;
+    return false;
+  };
+
+  const handle_patron_selected = (patron_id: string) => {
+    setFormData((prev) => ({ ...prev, patron_id: patron_id }));
+  };
+
+  const handle_copy_selected = (copy_id: string) => {
+    setFormData((prev) => ({ ...prev, item_id: copy_id }));
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Container
         maxWidth="lg"
         sx={{
-          py: 4,
+          py: 2,
           height: 1,
+          maxHeight: 1,
+          overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           gap: 0,
@@ -203,6 +151,7 @@ export const CheckOutItem: React.FC = () => {
           variant="h3"
           component="h1"
           gutterBottom
+          title={formData.patron_id + ' - ' + formData.item_id}
           sx={{
             fontWeight: 'bold',
             mb: 4,
@@ -276,18 +225,25 @@ export const CheckOutItem: React.FC = () => {
                 flex: 1,
                 display: activeStep === 0 ? 'inherit' : 'none',
                 mt: 2,
+                overflow: 'hidden',
               }}
             >
-              <PatronsDataGrid cols={columns} onError={setError} />
+              <PatronsDataGrid
+                cols={columns}
+                onError={setError}
+                onPatronSelected={handle_patron_selected}
+                check_overdue={true}
+              />
             </Box>
             <Box
               sx={{
                 flex: 1,
                 display: activeStep === 1 ? 'inherit' : 'none',
                 mt: 2,
+                overflow: 'hidden',
               }}
             >
-              <BooksDataGrid onError={setError} />
+              <CopiesDataGrid on_copy_selected={handle_copy_selected} />
             </Box>
             <Box
               sx={{
@@ -296,8 +252,32 @@ export const CheckOutItem: React.FC = () => {
                 mt: 2,
               }}
             >
-              <DatePicker label="Due Date" />
-              {/* <DatePicker label="Due Date" value={formData.dueDate} /> */}
+              <Paper
+                elevation={4}
+                sx={{
+                  height: 'min-content',
+                  mx: 'auto',
+                  mt: 2,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{ p: 2, pb: 0 }}
+                  color="text.secondary"
+                  fontSize={{ xs: '0.9rem', sm: '1rem', md: '1.2rem' }}
+                >
+                  Select Due Date
+                </Typography>
+                <DateCalendar
+                  value={formData.due_date}
+                  onChange={(new_value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      due_date: new_value || two_weeks_from_now,
+                    }))
+                  }
+                />
+              </Paper>
             </Box>
             <Box
               sx={{
@@ -309,18 +289,23 @@ export const CheckOutItem: React.FC = () => {
               <Button
                 color="inherit"
                 disabled={activeStep === 0}
-                onClick={handleBack}
+                onClick={handle_back}
                 sx={{ mr: 1 }}
+                variant="outlined"
               >
                 Back
               </Button>
               <Box sx={{ flex: '1 1 auto' }} />
               {isStepOptional(activeStep) && (
-                <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
+                <Button color="inherit" onClick={handle_skip} sx={{ mr: 1 }}>
                   Skip
                 </Button>
               )}
-              <Button onClick={handleNext}>
+              <Button
+                variant="outlined"
+                onClick={handle_next}
+                disabled={is_next_disabled()}
+              >
                 {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
               </Button>
             </Box>

@@ -183,12 +183,7 @@ const CreateBookDrawer: FC<CreateBookDrawerProps> = ({
             bgcolor: 'primary.main',
           }}
         >
-          <Typography
-            variant="h6"
-            component="h2"
-            sx={{ fontWeight: 600 }}
-            onClick={() => console.log(formData)}
-          >
+          <Typography variant="h6" component="h2" sx={{ fontWeight: 600 }}>
             Add New Book
           </Typography>
           <IconButton onClick={handleClose} size="small">

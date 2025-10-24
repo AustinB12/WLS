@@ -98,16 +98,17 @@ export enum Library_Item_Type {
   Audiobook = 'Audiobook',
 }
 
-export interface CatalogItem {
+export interface Catalog_Item {
   id: string;
   title: string;
   item_type: Library_Item_Type;
   description?: string;
   publication_year?: number;
+  congress_code: string;
 }
 
-export type Condition = 'New' | 'Good' | 'Fair' | 'Poor';
-export type AvailabilityStatus =
+export type Condition = 'New' | 'Excellent' | 'Good' | 'Fair' | 'Poor';
+export type Availability_Status =
   | 'Available'
   | 'Checked Out'
   | 'Reserved'
@@ -117,75 +118,52 @@ export type AvailabilityStatus =
 
 export interface Item_Copy {
   id: string;
-  catalog_item_id: string;
+  catalog_id: string;
   branch_id: number;
-  status: AvailabilityStatus;
+  status: Availability_Status;
   condition?: Condition;
   cost: number;
   notes?: string;
 }
 
-export interface Book {
+export interface Book extends Catalog_Item {
   id: string;
-  title: string;
-  description?: string;
+  catalog_id: string;
   publisher: string;
   author: string;
-  year_published?: number;
   genre?: Genre[];
-  cover_image_url?: string;
-  cost: number;
-  congress_code?: string;
+  cover_img_url?: string;
+  number_of_pages?: number;
 }
 
-export interface Recording {
-  id: string;
-  title: string;
-  description?: string;
+export interface Recording extends Catalog_Item {
   artist: string;
+  catalog_id: string;
   label: string;
-  publication_year?: number;
   duration_seconds?: number;
-  congress_code?: string;
 }
 
-export interface Video {
-  id: string;
-  title: string;
-  description?: string;
+export interface Video extends Catalog_Item {
   director: string;
+  catalog_id: string;
   producer: string;
-  publication_year?: number;
   duration_minutes?: number;
-  congress_code?: string;
 }
 
-export interface Periodical {
-  id: string;
-  title: string;
-  description?: string;
+export interface Periodical extends Catalog_Item {
   issue_number: string;
-  publication_year?: number;
+  catalog_id: string;
   publisher: string;
-  congress_code?: string;
 }
 
-export interface Magazine {
-  id: string;
-  title: string;
-  description?: string;
+export interface Magazine extends Catalog_Item {
   issue_number: string;
-  publication_year?: number;
+  catalog_id: string;
   publisher: string;
-  congress_code?: string;
 }
 
-export interface Audiobook {
-  id: string;
-  title: string;
-  description?: string;
+export interface Audiobook extends Catalog_Item, Book {
   narrator: string;
-  publication_year?: number;
+  catalog_id: string;
   duration_hours?: number;
-  congress_code?: string;
 }

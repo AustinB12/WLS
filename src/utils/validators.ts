@@ -1,4 +1,4 @@
-export const validateISBN = (isbn: string): boolean => {
+export const validate_isbn = (isbn: string): boolean => {
   // Remove hyphens and spaces
   const cleanISBN = isbn.replace(/[-\s]/g, '');
 
@@ -11,30 +11,30 @@ export const validateISBN = (isbn: string): boolean => {
   return /^\d+$/.test(cleanISBN);
 };
 
-export const validatePhone = (phone: string): boolean => {
+export const validate_phone = (phone: string): boolean => {
   const phoneRegex = /^\+?[\d\s\-()]{10,}$/;
   return phoneRegex.test(phone);
 };
 
-export const validateRequired = (value: string): boolean => {
+export const validate_required = (value: string): boolean => {
   return value.trim().length > 0;
 };
 
-export const validateMinLength = (
+export const validate_min_length = (
   value: string,
   minLength: number
 ): boolean => {
   return value.length >= minLength;
 };
 
-export const validateMaxLength = (
+export const validate_max_length = (
   value: string,
   maxLength: number
 ): boolean => {
   return value.length <= maxLength;
 };
 
-export const validateYear = (year: number): boolean => {
+export const validate_year = (year: number): boolean => {
   const currentYear = new Date().getFullYear();
   return year > 0 && year <= currentYear;
 };

@@ -10,6 +10,7 @@ import {
   Box,
 } from '@mui/material';
 import type { Item_Copy, Branch } from '../../types';
+import { get_condition_color, get_status_color } from '../../utils/colors';
 
 interface CopiesTableProps {
   copies: Item_Copy[];
@@ -17,57 +18,6 @@ interface CopiesTableProps {
 }
 
 export const CopiesTable = ({ copies, branches }: CopiesTableProps) => {
-  const getStatusColor = (
-    status: string
-  ):
-    | 'default'
-    | 'primary'
-    | 'secondary'
-    | 'error'
-    | 'info'
-    | 'success'
-    | 'warning' => {
-    switch (status) {
-      case 'Available':
-        return 'success';
-      case 'Checked Out':
-        return 'warning';
-      case 'Reserved':
-        return 'info';
-      case 'Processing':
-        return 'secondary';
-      case 'Damaged':
-      case 'Lost':
-        return 'error';
-      default:
-        return 'default';
-    }
-  };
-
-  const getConditionColor = (
-    condition?: string
-  ):
-    | 'default'
-    | 'primary'
-    | 'secondary'
-    | 'error'
-    | 'info'
-    | 'success'
-    | 'warning' => {
-    switch (condition) {
-      case 'New':
-      case 'Good':
-      case 'Excellent':
-        return 'success';
-      case 'Fair':
-        return 'primary';
-      case 'Poor':
-        return 'warning';
-      default:
-        return 'default';
-    }
-  };
-
   const getBranchName = (branchId: number): string => {
     return (
       branches.find((branch) => branch.id === branchId)?.branch_name ||
@@ -86,23 +36,43 @@ export const CopiesTable = ({ copies, branches }: CopiesTableProps) => {
   }
 
   return (
-    <TableContainer>
-      <Table sx={{ minWidth: 650 }} aria-label="copies table">
+    <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
+      <Table
+        sx={{
+          minWidth: 0,
+          width: '100%',
+          '& .MuiTableCell-root': {
+            padding: { xs: '8px 4px', sm: '16px' },
+            fontSize: { xs: '0.5rem', sm: '0.875rem' },
+          },
+        }}
+        aria-label="copies table"
+        size="small"
+      >
         <TableHead>
           <TableRow>
-            <TableCell>Copy ID</TableCell>
-            <TableCell>Branch</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Condition</TableCell>
-            <TableCell align="right">Cost</TableCell>
-            <TableCell>Notes</TableCell>
+            <TableCell sx={{ minWidth: { xs: 80, sm: 120 } }}>
+              Copy ID
+            </TableCell>
+            <TableCell sx={{ minWidth: { xs: 60, sm: 100 } }}>Branch</TableCell>
+            <TableCell sx={{ minWidth: { xs: 80, sm: 100 } }}>Status</TableCell>
+            <TableCell sx={{ minWidth: { xs: 70, sm: 90 } }}>
+              Condition
+            </TableCell>
+            <TableCell align="right" sx={{ minWidth: { xs: 50, sm: 70 } }}>
+              Cost
+            </TableCell>
+            <TableCell sx={{ minWidth: { xs: 80, sm: 120 } }}>Notes</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {copies.map((copy) => (
             <TableRow
               key={copy.id}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              sx={{
+                '&:last-child td, &:last-child th': { border: 0 },
+                fontSize: { xs: '0.5rem', sm: '0.875rem' },
+              }}
             >
               <TableCell component="th" scope="row">
                 <Typography
@@ -110,34 +80,51 @@ export const CopiesTable = ({ copies, branches }: CopiesTableProps) => {
                   variant="body2"
                   sx={{
                     fontFamily: 'monospace',
-                    maxWidth: 200,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
+                    maxWidth: { xs: 60, sm: 100 },
                   }}
                 >
                   {copy.id}
                 </Typography>
               </TableCell>
               <TableCell>
-                <Typography variant="body2" noWrap>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    maxWidth: { xs: 50, sm: 80 },
+                  }}
+                  title={getBranchName(copy.branch_id)}
+                >
                   {getBranchName(copy.branch_id)}
                 </Typography>
               </TableCell>
               <TableCell>
                 <Chip
                   label={copy.status}
-                  color={getStatusColor(copy.status)}
+                  color={get_status_color(copy.status)}
                   size="small"
+                  sx={{
+                    fontSize: { xs: '0.65rem', sm: '0.75rem' },
+                    height: { xs: 20, sm: 24 },
+                  }}
                 />
               </TableCell>
               <TableCell>
                 {copy.condition ? (
                   <Chip
                     label={copy.condition}
-                    color={getConditionColor(copy.condition)}
+                    color={get_condition_color(copy.condition)}
                     variant="outlined"
                     size="small"
+                    sx={{
+                      fontSize: { xs: '0.65rem', sm: '0.75rem' },
+                      height: { xs: 20, sm: 24 },
+                    }}
                   />
                 ) : (
                   <Typography variant="body2" color="text.secondary">
@@ -146,7 +133,13 @@ export const CopiesTable = ({ copies, branches }: CopiesTableProps) => {
                 )}
               </TableCell>
               <TableCell align="right">
-                <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 'medium',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   ${copy.cost.toFixed(2)}
                 </Typography>
               </TableCell>
@@ -155,10 +148,10 @@ export const CopiesTable = ({ copies, branches }: CopiesTableProps) => {
                   <Typography
                     variant="body2"
                     sx={{
-                      maxWidth: 200,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
+                      maxWidth: { xs: 60, sm: 100 },
                     }}
                     title={copy.notes}
                   >
@@ -166,7 +159,7 @@ export const CopiesTable = ({ copies, branches }: CopiesTableProps) => {
                   </Typography>
                 ) : (
                   <Typography variant="body2" color="text.secondary">
-                    No notes
+                    —
                   </Typography>
                 )}
               </TableCell>

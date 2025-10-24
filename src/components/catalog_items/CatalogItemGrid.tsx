@@ -1,31 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
-import { dataService } from '../../services/dataService';
-import { Library_Item_Type, type CatalogItem } from '../../types';
-import { Snackbar, Alert, Chip } from '@mui/material';
+import { type Catalog_Item } from '../../types';
+import { Snackbar, Alert, Chip, AlertTitle } from '@mui/material';
 import { CatalogItemDetails } from './CatalogItemDetails';
-import { blueberryTwilightPalette } from '@mui/x-charts/colorPalettes';
-
-const chip_colors = blueberryTwilightPalette('dark');
-
-const get_color_for_item_type = (item_type: string) => {
-  switch (item_type) {
-    case Library_Item_Type.Book:
-      return chip_colors[0];
-    case Library_Item_Type.Magazine:
-      return chip_colors[1];
-    case Library_Item_Type.Periodical:
-      return chip_colors[2];
-    case Library_Item_Type.Recording:
-      return chip_colors[3];
-    case Library_Item_Type.Audiobook:
-      return chip_colors[4];
-    case Library_Item_Type.Video:
-      return chip_colors[5];
-    default:
-      return 'default';
-  }
-};
+import { get_color_for_item_type } from '../../utils/colors';
+import { useCatalogItems } from '../../hooks/useCatalogItems';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -60,31 +39,14 @@ const columns: GridColDef[] = [
 ];
 
 export const CatalogItemGrid = () => {
-  const [rows, setRows] = useState<CatalogItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>('');
-
   const [details_open, set_details_open] = useState(false);
-  const [selected_item, set_selected_item] = useState<CatalogItem | null>(null);
+  const [selected_item, set_selected_item] = useState<Catalog_Item | null>(
+    null
+  );
 
-  useEffect(() => {
-    const fetchCatalogItems = async () => {
-      try {
-        setLoading(true);
-        const data = await dataService.get_all_catalog_items();
-        setRows(data || []);
-      } catch (error) {
-        console.error('Error fetching catalog items:', error);
-        setRows([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data: rows, isLoading: loading, error } = useCatalogItems();
 
-    fetchCatalogItems();
-  }, []);
-
-  const handle_item_selected = (item: CatalogItem) => {
+  const handle_item_selected = (item: Catalog_Item) => {
     set_selected_item(item);
     set_details_open(true);
   };
@@ -100,7 +62,7 @@ export const CatalogItemGrid = () => {
           pagination: { paginationModel: { pageSize: 10 } },
         }}
         onRowDoubleClick={(params) =>
-          handle_item_selected(params.row as CatalogItem)
+          handle_item_selected(params.row as Catalog_Item)
         }
       />
       <CatalogItemDetails
@@ -111,10 +73,12 @@ export const CatalogItemGrid = () => {
       <Snackbar
         anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
         open={Boolean(error)}
-        onClose={() => setError(null)}
         autoHideDuration={6000}
       >
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error">
+          {error?.message}
+          <AlertTitle>{error?.name}</AlertTitle>
+        </Alert>
       </Snackbar>
     </>
   );

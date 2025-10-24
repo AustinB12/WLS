@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { dataService } from '../services/dataService';
+import type { Item_Copy } from '../types';
 
 export const useCopies = (item_id: string) => {
   return useQuery({
@@ -9,10 +10,17 @@ export const useCopies = (item_id: string) => {
   });
 };
 
+export const useAllCopyIds = () => {
+  return useQuery({
+    queryKey: ['all_item_copy_ids'],
+    queryFn: () => dataService.get_all_copy_ids(),
+  });
+};
+
 export const useAllCopies = () => {
   return useQuery({
     queryKey: ['all_item_copies'],
-    queryFn: () => dataService.get_all_copy_ids(),
+    queryFn: (): Promise<Item_Copy[]> => dataService.get_all_copies(),
   });
 };
 

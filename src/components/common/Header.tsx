@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { Menu } from '@mui/icons-material';
 import { BranchSelector } from './BranchSelector';
-import { LightDarkToggle } from './lightDarkToggle';
+import { LightDarkToggle } from './LightDarkToggle';
 
 export const Header = ({
   sidebarOpen,
@@ -21,7 +21,7 @@ export const Header = ({
   setSidebarOpen: (open: boolean) => void;
 }) => {
   const theme = useTheme();
-  const xsUp = useMediaQuery(theme.breakpoints.up('sm'));
+  const xsUp = useMediaQuery(theme.breakpoints.up('md'));
 
   return (
     <AppBar position="static" color="default" elevation={1}>

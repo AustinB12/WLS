@@ -1,21 +1,21 @@
 import { format, isAfter, parseISO } from 'date-fns';
 
-export const formatDate = (date: string | Date): string => {
+export const format_date = (date: string | Date): string => {
   const dateObj = typeof date === 'string' ? parseISO(date) : date;
   return format(dateObj, 'MMM dd, yyyy');
 };
 
-export const formatDateTime = (date: string | Date): string => {
+export const format_date_time = (date: string | Date): string => {
   const dateObj = typeof date === 'string' ? parseISO(date) : date;
   return format(dateObj, 'MMM dd, yyyy HH:mm');
 };
 
-export const isOverdue = (dueDate: string): boolean => {
+export const is_overdue = (dueDate: string): boolean => {
   return isAfter(new Date(), parseISO(dueDate));
 };
 
-export const calculateDaysOverdue = (dueDate: string): number => {
-  if (!isOverdue(dueDate)) return 0;
+export const calculate_days_overdue = (dueDate: string): number => {
+  if (!is_overdue(dueDate)) return 0;
 
   const due = parseISO(dueDate);
   const now = new Date();
@@ -25,10 +25,10 @@ export const calculateDaysOverdue = (dueDate: string): number => {
   return diffDays;
 };
 
-export const calculateFine = (
+export const calculate_fine = (
   dueDate: string,
   finePerDay: number = 0.5
 ): number => {
-  const daysOverdue = calculateDaysOverdue(dueDate);
+  const daysOverdue = calculate_days_overdue(dueDate);
   return daysOverdue * finePerDay;
 };

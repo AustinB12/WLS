@@ -12,7 +12,6 @@ import {
   MenuBook as BookIcon,
   Person as AuthorIcon,
   Business as PublisherIcon,
-  AttachMoney as CostIcon,
 } from '@mui/icons-material';
 import type { Book } from '../../types';
 
@@ -96,22 +95,6 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
 
           <Divider sx={{ m: '0 !important' }} />
 
-          {/* Cost */}
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <CostIcon sx={{ mr: 1, color: 'primary.main' }} />
-              <Typography variant="subtitle2" color="text.secondary">
-                Cost
-              </Typography>
-            </Box>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 500, color: 'success.main' }}
-            >
-              ${book?.cost.toFixed(2)}
-            </Typography>
-          </Box>
-
           {/* Optional fields */}
           {book?.congress_code && (
             <>
@@ -129,7 +112,7 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
             </>
           )}
 
-          {book.year_published && (
+          {book.publication_year && (
             <>
               <Divider sx={{ m: '0 !important' }} />
               <Box>
@@ -140,7 +123,7 @@ const BookDetails: FC<BookDetailsProps> = ({ book, onClose }) => {
                 >
                   Published Year
                 </Typography>
-                <Typography variant="body1">{book.year_published}</Typography>
+                <Typography variant="body1">{book.publication_year}</Typography>
               </Box>
             </>
           )}

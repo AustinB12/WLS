@@ -29,11 +29,11 @@ export const BookCard: React.FC<BookCardProps> = ({ book }) => {
         },
       }}
     >
-      {book.cover_image_url && (
+      {book.cover_img_url && (
         <CardMedia
           component="img"
           height="192"
-          image={book.cover_image_url}
+          image={book.cover_img_url}
           alt={book.title}
           sx={{ objectFit: 'cover' }}
         />
@@ -56,7 +56,7 @@ export const BookCard: React.FC<BookCardProps> = ({ book }) => {
         </Typography>
 
         <Typography variant="body2" color="text.secondary" gutterBottom>
-          {book.publisher} • {book.year_published}
+          {book.publisher} • {book.publication_year}
         </Typography>
 
         <Typography variant="body2" color="text.secondary" gutterBottom>

@@ -117,64 +117,6 @@ export const ItemCatalogContent = (): JSX.Element => {
   );
 };
 
-// interface BookGridProps {
-//   books: Book[];
-//   onBookDetailsClick: (book: Book) => void;
-// }
-
-// const BookGrid: React.FC<BookGridProps> = ({ books, onBookDetailsClick }) => {
-//   return (
-//     <Grid container spacing={3}>
-//       {books.map((book) => (
-//         <Grid size={{ xs: 6, sm: 6, md: 4, lg: 4, xl: 3 }} key={book.id}>
-//           <BookCatalogCard book={book} onDetailsClick={onBookDetailsClick} />
-//         </Grid>
-//       ))}
-//     </Grid>
-//   );
-// };
-
-// interface BookSearchHeaderProps {
-//   searchTerm: string;
-//   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-//   onSearchKeyDown: (e: React.KeyboardEvent) => void;
-// }
-
-// const BookSearchHeader: React.FC<BookSearchHeaderProps> = ({
-//   searchTerm,
-//   onSearchChange,
-//   onSearchKeyDown,
-// }) => {
-//   return (
-//     <Stack
-//       direction="row"
-//       spacing={2}
-//       sx={{ mb: 4, alignItems: 'center', justifyContent: 'space-between' }}
-//     >
-//       <Box sx={{ mb: 4, width: '40%' }}>
-//         <TextField
-//           fullWidth
-//           placeholder="Search books..."
-//           variant="outlined"
-//           value={searchTerm}
-//           onChange={onSearchChange}
-//           onKeyDown={onSearchKeyDown}
-//           sx={{ maxWidth: 500 }}
-//           slotProps={{
-//             input: {
-//               startAdornment: (
-//                 <InputAdornment position="start">
-//                   <Search />
-//                 </InputAdornment>
-//               ),
-//             },
-//           }}
-//         />
-//       </Box>
-//     </Stack>
-//   );
-// };
-
 interface EmptyStateProps {
   message: string;
 }

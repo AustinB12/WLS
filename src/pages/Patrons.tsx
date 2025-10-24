@@ -1,4 +1,10 @@
-import { useMediaQuery, Container, Typography, useTheme } from '@mui/material';
+import {
+  useMediaQuery,
+  Container,
+  Typography,
+  useTheme,
+  Box,
+} from '@mui/material';
 import { useState } from 'react';
 import { PatronsDataGrid } from '../components/patrons/PatronsDataGrid';
 import PatronsList from '../components/patrons/PatronsList';
@@ -13,7 +19,17 @@ export const Patrons = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ p: 3 }}>
+    <Container
+      maxWidth="lg"
+      sx={{
+        p: 3,
+        overflow: 'hidden',
+        height: 1,
+        maxHeight: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Typography
         variant="h4"
         component="h1"
@@ -27,7 +43,9 @@ export const Patrons = () => {
           Error: {error}
         </Typography>
       )}
-      {xsUp ? <PatronsDataGrid onError={handleError} /> : <PatronsList />}
+      <Box sx={{ flex: 1, overflow: 'hidden' }}>
+        {xsUp ? <PatronsDataGrid onError={handleError} /> : <PatronsList />}
+      </Box>
     </Container>
   );
 };

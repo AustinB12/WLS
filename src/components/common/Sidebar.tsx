@@ -32,7 +32,7 @@ export const Sidebar = ({
   const location = useLocation();
 
   const theme = useTheme();
-  const xsUp = useMediaQuery(theme.breakpoints.up('sm'));
+  const xsUp = useMediaQuery(theme.breakpoints.up('md'));
 
   const isActive = (path: string) => {
     return (

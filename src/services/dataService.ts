@@ -3,7 +3,7 @@ import type {
   Transaction,
   Reservation,
   BookFilters,
-  CatalogItem,
+  Catalog_Item,
   Item_Copy,
   Branch,
   Patron,
@@ -48,7 +48,17 @@ export const dataService = {
   async getBookById(id: string): Promise<Book | null> {
     const { data, error } = await supabase
       .from('books')
-      .select('*')
+      .select(
+        `
+        id,
+        author,
+        genre,
+        publisher,
+        catalog_id,
+        cover_img_url,
+        catalog_items ( item_type, title, description, publication_year, congress_code )
+      `
+      )
       .eq('id', id)
       .single();
 
@@ -57,7 +67,25 @@ export const dataService = {
       throw new Error(`Failed to fetch book: ${error.message}`);
     }
 
-    return data;
+    if (!data) return null;
+
+    const catalog_item: Omit<Catalog_Item, 'id'> = Array.isArray(
+      data.catalog_items
+    )
+      ? data.catalog_items[0]
+      : data.catalog_items;
+
+    const new_book: Book = {
+      id: data.id,
+      author: data.author,
+      genre: data.genre,
+      publisher: data.publisher,
+      cover_img_url: data.cover_img_url,
+      catalog_id: data.catalog_id,
+      ...catalog_item,
+    };
+
+    return new_book;
   },
 
   async createBook(book: Omit<Book, 'id'>): Promise<Book> {
@@ -327,7 +355,7 @@ export const dataService = {
     };
   },
 
-  async get_all_catalog_items(): Promise<CatalogItem[]> {
+  async get_all_catalog_items(): Promise<Catalog_Item[]> {
     const { data, error } = await supabase
       .from('catalog_items')
       .select('*')
@@ -365,6 +393,44 @@ export const dataService = {
     }
 
     return data.map((item) => item.id) || [];
+  },
+
+  async get_all_copies(): Promise<Item_Copy[]> {
+    const { data, error } = await supabase
+      .from('item_copies')
+      .select(
+        `*,
+          catalog_items(
+          congress_code,
+          description,
+          item_type,
+          publication_year,
+          title
+          )
+        `
+      )
+      .order('status', { ascending: true });
+
+    if (error) {
+      throw new Error(`Failed to fetch item copies: ${error.message}`);
+    }
+
+    const formatted_data = data?.map((copy) => {
+      const catalog_item = Array.isArray(copy.catalog_items)
+        ? copy.catalog_items[0]
+        : copy.catalog_items;
+
+      return {
+        ...copy,
+        congress_code: catalog_item?.congress_code,
+        description: catalog_item?.description,
+        item_type: catalog_item?.item_type,
+        publication_year: catalog_item?.publication_year,
+        title: catalog_item?.title,
+      };
+    });
+
+    return (formatted_data as Item_Copy[]) || [];
   },
 
   async get_copy_by_id(copy_id: string): Promise<Item_Copy | null> {

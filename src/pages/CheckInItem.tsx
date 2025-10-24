@@ -9,13 +9,15 @@ import {
   TextField,
   Grid,
   Button,
+  Chip,
 } from '@mui/material';
 import { useEffect, useState, type FC } from 'react';
 import { type SelectChangeEvent } from '@mui/material/Select';
-import { useAllCopies, useCopyById } from '../hooks/useCopies';
+import { useAllCopyIds, useCopyById } from '../hooks/useCopies';
 import { useBranchesContext } from '../hooks/useBranchHooks';
+import { get_condition_color } from '../utils/colors';
 
-const conditions: string[] = ['New', 'Good', 'Fair', 'Poor'];
+const conditions: string[] = ['New', 'Excellent', 'Good', 'Fair', 'Poor'];
 
 export const CheckInItem: FC = () => {
   const [value, setValue] = useState<string | null>('');
@@ -25,7 +27,7 @@ export const CheckInItem: FC = () => {
 
   const { branches, loading } = useBranchesContext();
 
-  const { data: copies } = useAllCopies();
+  const { data: copies } = useAllCopyIds();
 
   const { data: copy } = useCopyById(value || '');
 
@@ -46,10 +48,12 @@ export const CheckInItem: FC = () => {
   };
 
   useEffect(() => {
-    set_new_note(copy?.notes || '');
-    set_condition(copy?.condition || '');
-    set_selected_branch_id(copy?.branch_id ? copy.branch_id.toString() : '');
-  }, [copy?.notes, copy?.condition, copy?.branch_id]);
+    if (copy) {
+      set_new_note(copy?.notes || '');
+      set_condition(copy?.condition || '');
+      set_selected_branch_id(copy?.branch_id ? copy.branch_id.toString() : '');
+    }
+  }, [copy?.notes, copy?.condition, copy?.branch_id, copy]);
 
   return (
     <Container sx={{ pt: 4, maxWidth: '7xl', height: '100%' }}>
@@ -57,6 +61,7 @@ export const CheckInItem: FC = () => {
         variant="h4"
         component="h1"
         gutterBottom
+        title={copy?.condition}
         sx={{
           fontWeight: 'bold',
           mb: 3,
@@ -89,16 +94,17 @@ export const CheckInItem: FC = () => {
           <FormControl fullWidth>
             <InputLabel id="demo-simple-select-label">{'Condition'}</InputLabel>
             <Select
+              title="The condition of the library item"
               disabled={!copy}
               labelId="demo-simple-select-label"
               id="demo-simple-select"
-              value={condition || copy?.condition}
+              value={condition || copy?.condition || ''}
               label="Condition"
               onChange={handle_condition_change}
             >
-              {conditions.map((condition) => (
-                <MenuItem key={condition} value={condition}>
-                  {condition}
+              {conditions.map((c) => (
+                <MenuItem key={c} value={c}>
+                  <Chip label={c} color={get_condition_color(c)} />
                 </MenuItem>
               ))}
             </Select>
@@ -115,7 +121,7 @@ export const CheckInItem: FC = () => {
             onChange={handle_notes_change}
           />
         </Grid>
-        <Grid size={{ xs: 6 }}>
+        <Grid size={{ xs: 12, sm: 12, md: 6 }}>
           <FormControl fullWidth>
             <InputLabel id="branch-select-label">{'New Location?'}</InputLabel>
             <Select

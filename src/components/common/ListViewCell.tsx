@@ -23,10 +23,7 @@ export function ListViewCell({
         flex: 1,
       }}
     >
-      <Avatar
-        sx={{ width: 32, height: 32, bgcolor: color }}
-        onClick={() => console.log(patron.card_expiration_date)}
-      />
+      <Avatar sx={{ width: 32, height: 32, bgcolor: color }} />
       <Stack
         sx={{
           flexGrow: 1,

@@ -1,5 +1,5 @@
 import { Stack, Typography, Box, Paper } from '@mui/material';
-import type { Branch, CatalogItem } from '../../types';
+import type { Branch, Catalog_Item } from '../../types';
 import { Library_Item_Type } from '../../types';
 import { DetailsDrawer } from '../common/DetailsDrawer';
 import { useCopies } from '../../hooks/useCopies';
@@ -10,7 +10,7 @@ import { MenuBook, Newspaper, PersonalVideo } from '@mui/icons-material';
 
 interface ItemDetailsProps {
   is_open: boolean;
-  item: CatalogItem | null;
+  item: Catalog_Item | null;
   onClose: () => void;
 }
 
@@ -26,7 +26,7 @@ interface LayoutConfig {
   icon?: React.ReactNode;
 }
 
-const getLayoutConfig = (item: CatalogItem): LayoutConfig => {
+const getLayoutConfig = (item: Catalog_Item): LayoutConfig => {
   switch (item.item_type) {
     case Library_Item_Type.Book:
       return {
@@ -115,7 +115,7 @@ const ItemLayout = ({
   item,
   branches,
 }: {
-  item: CatalogItem;
+  item: Catalog_Item;
   branches: Branch[];
 }) => {
   const config = getLayoutConfig(item);
@@ -178,7 +178,7 @@ const CopiesSection = ({
   item,
   branches,
 }: {
-  item: CatalogItem;
+  item: Catalog_Item;
   branches: Branch[];
 }) => {
   const { data: copies, isLoading: loading, error } = useCopies(item.id);
