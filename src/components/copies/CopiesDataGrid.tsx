@@ -116,7 +116,7 @@ export const CopiesDataGrid = ({
         loading={loading}
         pageSizeOptions={[10, 25, 50]}
         initialState={{
-          pagination: { paginationModel: { pageSize: 15 } },
+          pagination: { paginationModel: { pageSize: 25 } },
         }}
         showToolbar
         slotProps={{

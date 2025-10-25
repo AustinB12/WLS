@@ -10,6 +10,8 @@ import {
   StepLabel,
   Stepper,
   Paper,
+  Snackbar,
+  Tooltip,
 } from '@mui/material';
 import { LibraryAdd } from '@mui/icons-material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -33,6 +35,27 @@ const columns: GridColDef[] = [
   },
   { field: 'last_name', headerName: 'Last Name', flex: 1 },
   {
+    field: 'balance',
+    headerName: 'Balance',
+    align: 'left',
+    headerAlign: 'left',
+    type: 'number',
+    width: 150,
+    valueFormatter: (value) =>
+      value === null || value === undefined
+        ? '$0.00'
+        : `$${Number(value).toFixed(2)}`,
+    renderCell: (params: GridRenderCellParams) => (
+      <Box
+        sx={{
+          color: params.value > 0 ? 'warning.main' : 'inherit',
+        }}
+      >
+        {`$${params.value.toFixed(2)}`}
+      </Box>
+    ),
+  },
+  {
     field: 'card_expiration_date',
     headerName: 'Card Expiration',
     valueGetter: (value) => {
@@ -43,7 +66,9 @@ const columns: GridColDef[] = [
     renderCell: (params: GridRenderCellParams) => (
       <Box
         sx={{
-          color: !is_overdue(params.value) ? 'inherit' : 'error.main',
+          color: is_overdue(new Date(params.value))
+            ? 'warning.main'
+            : 'inherit',
         }}
       >
         {params.value}
@@ -59,78 +84,61 @@ interface CheckOutFormData {
 }
 
 export const CheckOutItem: React.FC = () => {
-  const [formData, setFormData] = useState<CheckOutFormData>({
+  const [form_data, set_form_data] = useState<CheckOutFormData>({
     patron_id: '',
     item_id: '',
     due_date: two_weeks_from_now,
   });
 
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [error, set_error] = useState<string | null>(null);
+  const [success, set_success] = useState<string | null>(null);
 
-  const [activeStep, setActiveStep] = useState(0);
-  const [skipped, setSkipped] = useState(new Set<number>());
+  const [active_step, set_active_step] = useState(0);
+  const [skipped, set_skipped] = useState(new Set<number>());
 
-  const handleRetry = useCallback(() => {
-    setError(null);
-    setSuccess(null);
+  const handle_retry = useCallback(() => {
+    set_error(null);
+    set_success(null);
   }, []);
 
-  const isStepOptional = (step: number) => {
-    return step === 8881;
-  };
-
-  const isStepSkipped = (step: number) => {
+  const is_step_skipped = (step: number) => {
     return skipped.has(step);
   };
 
   const handle_next = () => {
     let new_skipped = skipped;
-    if (isStepSkipped(activeStep)) {
+    if (is_step_skipped(active_step)) {
       new_skipped = new Set(new_skipped.values());
-      new_skipped.delete(activeStep);
+      new_skipped.delete(active_step);
     }
 
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(new_skipped);
+    set_active_step((prevActiveStep) => prevActiveStep + 1);
+    set_skipped(new_skipped);
   };
 
   const handle_back = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handle_skip = () => {
-    if (!isStepOptional(activeStep)) {
-      throw new Error("You can't skip a step that isn't optional.");
-    }
-
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped((prevSkipped) => {
-      const newSkipped = new Set(prevSkipped.values());
-      newSkipped.add(activeStep);
-      return newSkipped;
-    });
+    set_active_step((prevActiveStep) => prevActiveStep - 1);
   };
 
   const handleReset = () => {
-    setActiveStep(0);
+    set_active_step(0);
   };
 
   const is_next_disabled = () => {
-    if (activeStep === 0 && !formData.patron_id) return true;
+    if (active_step === 0 && !form_data.patron_id) return true;
 
-    if (activeStep === 1 && !formData.item_id) return true;
+    if (active_step === 1 && !form_data.item_id) return true;
 
-    if (activeStep === 2 && !formData.due_date) return true;
+    if (active_step === 2 && !form_data.due_date) return true;
     return false;
   };
 
   const handle_patron_selected = (patron_id: string) => {
-    setFormData((prev) => ({ ...prev, patron_id: patron_id }));
+    set_form_data((prev) => ({ ...prev, patron_id: patron_id }));
   };
 
   const handle_copy_selected = (copy_id: string) => {
-    setFormData((prev) => ({ ...prev, item_id: copy_id }));
+    set_form_data((prev) => ({ ...prev, item_id: copy_id }));
   };
 
   return (
@@ -151,7 +159,7 @@ export const CheckOutItem: React.FC = () => {
           variant="h3"
           component="h1"
           gutterBottom
-          title={formData.patron_id + ' - ' + formData.item_id}
+          title={'Active Step: ' + active_step}
           sx={{
             fontWeight: 'bold',
             mb: 4,
@@ -165,39 +173,38 @@ export const CheckOutItem: React.FC = () => {
           Check Out Item
         </Typography>
 
-        {error && (
+        <Snackbar open={!!error} autoHideDuration={6000} onClose={handle_retry}>
           <Alert severity="error" sx={{ mb: 3 }}>
             <AlertTitle>Check-out Error</AlertTitle>
             {error}
             <Button
               size="small"
-              onClick={handleRetry}
+              onClick={handle_retry}
               sx={{ mt: 1, display: 'block' }}
             >
               Try Again
             </Button>
           </Alert>
-        )}
+        </Snackbar>
 
-        {success && (
+        <Snackbar
+          open={!!success}
+          autoHideDuration={6000}
+          onClose={() => set_success(null)}
+        >
           <Alert severity="success" sx={{ mb: 3 }}>
             <AlertTitle>Success!</AlertTitle>
             {success}
           </Alert>
-        )}
+        </Snackbar>
 
-        <Stepper activeStep={activeStep}>
+        <Stepper activeStep={active_step}>
           {steps.map((label, index) => {
             const stepProps: { completed?: boolean } = {};
             const labelProps: {
               optional?: React.ReactNode;
             } = {};
-            if (isStepOptional(index)) {
-              labelProps.optional = (
-                <Typography variant="caption">Optional</Typography>
-              );
-            }
-            if (isStepSkipped(index)) {
+            if (is_step_skipped(index)) {
               stepProps.completed = false;
             }
             return (
@@ -207,7 +214,7 @@ export const CheckOutItem: React.FC = () => {
             );
           })}
         </Stepper>
-        {activeStep === steps.length ? (
+        {active_step === steps.length ? (
           <>
             <Typography sx={{ mt: 2, mb: 1 }}>
               All steps completed - you&apos;re finished
@@ -219,65 +226,54 @@ export const CheckOutItem: React.FC = () => {
           </>
         ) : (
           <>
-            {/* <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography> */}
             <Box
               sx={{
                 flex: 1,
-                display: activeStep === 0 ? 'inherit' : 'none',
                 mt: 2,
                 overflow: 'hidden',
               }}
             >
-              <PatronsDataGrid
-                cols={columns}
-                onError={setError}
-                onPatronSelected={handle_patron_selected}
-                check_overdue={true}
-              />
-            </Box>
-            <Box
-              sx={{
-                flex: 1,
-                display: activeStep === 1 ? 'inherit' : 'none',
-                mt: 2,
-                overflow: 'hidden',
-              }}
-            >
-              <CopiesDataGrid on_copy_selected={handle_copy_selected} />
-            </Box>
-            <Box
-              sx={{
-                flex: 1,
-                display: activeStep === 2 ? 'inherit' : 'none',
-                mt: 2,
-              }}
-            >
-              <Paper
-                elevation={4}
-                sx={{
-                  height: 'min-content',
-                  mx: 'auto',
-                  mt: 2,
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  sx={{ p: 2, pb: 0 }}
-                  color="text.secondary"
-                  fontSize={{ xs: '0.9rem', sm: '1rem', md: '1.2rem' }}
-                >
-                  Select Due Date
-                </Typography>
-                <DateCalendar
-                  value={formData.due_date}
-                  onChange={(new_value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      due_date: new_value || two_weeks_from_now,
-                    }))
-                  }
+              {active_step === 0 && (
+                <PatronsDataGrid
+                  cols={columns}
+                  onError={set_error}
+                  onPatronSelected={handle_patron_selected}
+                  check_overdue={true}
                 />
-              </Paper>
+              )}
+              {active_step === 1 && (
+                <CopiesDataGrid on_copy_selected={handle_copy_selected} />
+              )}
+              {active_step === 2 && (
+                <Paper
+                  elevation={4}
+                  sx={{
+                    height: 'min-content',
+                    width: 'min-content',
+                    mx: 'auto',
+                    mt: 2,
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    sx={{ p: 2, pb: 0 }}
+                    color="text.secondary"
+                    fontSize={{ xs: '0.9rem', sm: '1rem', md: '1.2rem' }}
+                  >
+                    Select Due Date
+                  </Typography>
+                  <DateCalendar
+                    value={form_data.due_date}
+                    onChange={(new_value) =>
+                      set_form_data((prev) => ({
+                        ...prev,
+                        due_date: new_value || two_weeks_from_now,
+                      }))
+                    }
+                  />
+                </Paper>
+              )}
+              <Box />
             </Box>
             <Box
               sx={{
@@ -287,8 +283,7 @@ export const CheckOutItem: React.FC = () => {
               }}
             >
               <Button
-                color="inherit"
-                disabled={activeStep === 0}
+                disabled={active_step === 0}
                 onClick={handle_back}
                 sx={{ mr: 1 }}
                 variant="outlined"
@@ -296,18 +291,24 @@ export const CheckOutItem: React.FC = () => {
                 Back
               </Button>
               <Box sx={{ flex: '1 1 auto' }} />
-              {isStepOptional(activeStep) && (
-                <Button color="inherit" onClick={handle_skip} sx={{ mr: 1 }}>
-                  Skip
-                </Button>
-              )}
-              <Button
-                variant="outlined"
-                onClick={handle_next}
-                disabled={is_next_disabled()}
-              >
-                {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-              </Button>
+              <Tooltip
+                children={
+                  <span>
+                    <Button
+                      variant="outlined"
+                      onClick={handle_next}
+                      disabled={is_next_disabled()}
+                    >
+                      {active_step === steps.length - 1 ? 'Finish' : 'Next'}
+                    </Button>
+                  </span>
+                }
+                title={
+                  is_next_disabled()
+                    ? `Select ${active_step === 0 ? 'patron' : 'item'} to proceed`
+                    : 'Next page'
+                }
+              ></Tooltip>
             </Box>
           </>
         )}

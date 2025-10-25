@@ -10,25 +10,24 @@ export const format_date_time = (date: string | Date): string => {
   return format(dateObj, 'MMM dd, yyyy HH:mm');
 };
 
-export const is_overdue = (dueDate: string): boolean => {
-  return isAfter(new Date(), parseISO(dueDate));
+export const is_overdue = (due_date: Date): boolean => {
+  return isAfter(new Date(), due_date);
 };
 
-export const calculate_days_overdue = (dueDate: string): number => {
-  if (!is_overdue(dueDate)) return 0;
+export const calculate_days_overdue = (due_date: Date): number => {
+  if (!is_overdue(due_date)) return 0;
 
-  const due = parseISO(dueDate);
   const now = new Date();
-  const diffTime = Math.abs(now.getTime() - due.getTime());
+  const diffTime = Math.abs(now.getTime() - due_date.getTime());
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   return diffDays;
 };
 
 export const calculate_fine = (
-  dueDate: string,
+  due_date: Date,
   finePerDay: number = 0.5
 ): number => {
-  const daysOverdue = calculate_days_overdue(dueDate);
-  return daysOverdue * finePerDay;
+  const days_overdue = calculate_days_overdue(due_date);
+  return days_overdue * finePerDay;
 };
