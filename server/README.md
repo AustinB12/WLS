@@ -1,19 +1,19 @@
 # Library Management System API Server
 
-A Node.js Express server for the Library Management System, providing RESTful APIs for managing catalog items, patrons, transactions, reservations, and branches.
-
-## Features
-
-- **RESTful API** with comprehensive endpoints
-- **SQLite Database Integration** with connection management
-- **Input Validation** using express-validator
-- **Security** with Helmet and CORS
-- **Rate Limiting** to prevent abuse
-- **Logging** with Morgan
-- **Error Handling** with detailed error responses
-- **Environment Configuration** with dotenv
+Node.js server with Express JS package
 
 ## Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server with auto-restart
+npm run dev
+
+# Run tests
+npm test
+```
 
 ### Prerequisites
 
@@ -128,53 +128,3 @@ The server expects a SQLite database with the following main tables:
 - `branches` - Library branches
 - `transactions` - Checkout/checkin transactions
 - `reservations` - Item reservations
-
-## Error Handling
-
-The API returns consistent error responses:
-
-```json
-{
-  "error": "Error message",
-  "message": "Detailed error description"
-}
-```
-
-## Security Features
-
-- **Helmet** for security headers
-- **CORS** for cross-origin resource sharing
-- **Rate limiting** to prevent abuse
-- **Input validation** for all endpoints
-- **SQL injection protection** with parameterized queries
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server with auto-restart
-npm run dev
-
-# Run tests
-npm test
-```
-
-## Production Deployment
-
-1. Set `NODE_ENV=production` in your environment
-2. Configure production database settings
-3. Use a process manager like PM2:
-   ```bash
-   npm install -g pm2
-   pm2 start server.js --name "library-api"
-   ```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request

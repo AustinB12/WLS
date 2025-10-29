@@ -181,7 +181,7 @@ router.post(
         transaction_type: 'checkout',
         checkout_date,
         due_date: calculated_due_date,
-        status: 'active',
+        status: 'Active',
         fine_amount: 0,
         created_at: new Date(),
         updated_at: new Date(),
@@ -215,8 +215,7 @@ router.post(
 router.post(
   '/checkin',
   [
-    body('copy_id').isUUID().withMessage('Valid copy ID is required'),
-    body('condition')
+    body('new_condition')
       .optional()
       .isIn(['New', 'Excellent', 'Good', 'Fair', 'Poor'])
       .withMessage('Invalid condition'),
@@ -224,11 +223,11 @@ router.post(
   handle_validation_errors,
   async (req, res) => {
     try {
-      const { copy_id, condition, notes } = req.body;
+      const { copy_id, new_condition, new_location_id, notes } = req.body;
 
       // Find active transaction for this copy
       const active_transactions = await db.execute_query(
-        'SELECT * FROM transactions WHERE copy_id = ? AND status = "active" ORDER BY created_at DESC LIMIT 1',
+        'SELECT * FROM transactions WHERE copy_id = ? AND status = "Active" ORDER BY created_at DESC LIMIT 1',
         [copy_id]
       );
 
@@ -239,7 +238,7 @@ router.post(
       }
 
       const transaction = active_transactions[0];
-      const return_date = new Date();
+      const return_date = new Date(); // today
       const due_date = new Date(transaction.due_date);
 
       // Calculate fine if overdue
@@ -255,7 +254,7 @@ router.post(
       await db.update_record('transactions', transaction.id, {
         return_date,
         fine_amount,
-        status: 'completed',
+        status: 'Completed',
         notes: notes || null,
         updated_at: new Date(),
       });
@@ -265,12 +264,10 @@ router.post(
         status: 'Available',
         checked_out_by: null,
         due_date: null,
+        location: new_location_id || transaction.location_id,
+        condition: new_condition || transaction.condition,
         updated_at: new Date(),
       };
-
-      if (condition) {
-        update_data.condition = condition;
-      }
 
       await db.update_record('item_copies', copy_id, update_data);
 

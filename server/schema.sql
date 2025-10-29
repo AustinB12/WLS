@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(2))) || '-' || lower(hex(randomblob(6)))),
   copy_id TEXT,
   patron_id INTEGER,
+  location_id INTEGER,
   transaction_type TEXT NOT NULL,
   checkout_date DATETIME,
   due_date DATETIME,
@@ -105,7 +106,8 @@ CREATE TABLE IF NOT EXISTS transactions (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (copy_id) REFERENCES item_copies(id) ON DELETE CASCADE,
-  FOREIGN KEY (patron_id) REFERENCES patrons(id) ON DELETE CASCADE
+  FOREIGN KEY (patron_id) REFERENCES patrons(id) ON DELETE CASCADE,
+  FOREIGN KEY (location_id) REFERENCES branches(id) ON DELETE SET NULL
 );
 
 -- Create indexes for better performance

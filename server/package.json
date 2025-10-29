@@ -8,7 +8,7 @@
     "dev": "nodemon server.js",
     "test": "jest",
     "seed": "node seed.js",
-    "script": "node s.js"
+    "migrate": "node migrations/add_location_to_transactions.js"
   },
   "keywords": ["library", "management", "api", "express"],
   "author": "",

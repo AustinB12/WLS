@@ -9,6 +9,7 @@ import type {
   Patron,
   Book_Form_Data,
   Create_Catalog_Item_Form_Data,
+  Condition,
 } from '../types';
 import { Genre } from '../types';
 
@@ -223,10 +224,18 @@ export const dataService = {
     return transaction;
   },
 
-  async returnBook(copy_id: string): Promise<Transaction | null> {
+  async return_book(
+    copy_id: string,
+    new_condition?: Condition,
+    new_location_id?: number,
+    notes?: string
+  ): Promise<Transaction | null> {
     try {
       const checkin_data = {
         copy_id,
+        new_condition,
+        new_location_id,
+        notes,
       };
 
       const result = await api_request<{ transaction_id: string }>(

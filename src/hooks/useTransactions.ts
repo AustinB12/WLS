@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { dataService } from '../services/dataService';
+import type { Condition } from '../types';
 
 export const useTransactions = () => {
   return useQuery({
@@ -46,7 +47,18 @@ export const useReturnBook = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: dataService.returnBook,
+    mutationFn: ({
+      copy_id,
+      new_condition,
+      new_location_id,
+      notes,
+    }: {
+      copy_id: string;
+      new_condition?: Condition;
+      new_location_id?: number;
+      notes?: string;
+    }) =>
+      dataService.return_book(copy_id, new_condition, new_location_id, notes),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['books'] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });

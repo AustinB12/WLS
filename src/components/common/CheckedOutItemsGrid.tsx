@@ -58,7 +58,11 @@ const columns: GridColDef[] = [
   },
 ];
 
-export const CheckedOutItemsGrid = () => {
+export const CheckedOutItemsGrid = ({
+  select_item_copy,
+}: {
+  select_item_copy: (copy_id: string) => void;
+}) => {
   const { data, isLoading, refetch } = useActiveTransactions();
 
   return (
@@ -86,7 +90,7 @@ export const CheckedOutItemsGrid = () => {
           initialState={{
             pagination: { paginationModel: { pageSize: 15 } },
           }}
-          disableRowSelectionOnClick
+          onRowClick={(params) => select_item_copy(params.row.copy_id)}
           sx={{
             border: 'none',
             '& .MuiDataGrid-columnHeaders': {
