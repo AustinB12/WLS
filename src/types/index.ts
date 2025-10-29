@@ -1,13 +1,20 @@
 export interface Transaction {
   id: string;
-  book_id: string;
-  transaction_type: 'checkout' | 'return' | 'renewal';
-  checkout_date: string;
-  due_date: string;
+  copy_id: string;
+  patron_id: number;
+  transaction_type: 'Checkout' | 'Checkin' | 'Balance' | 'Renewal';
+  created_at: Date;
+  updated_at: Date;
+  due_date?: string;
   return_date?: string;
   fine_amount?: number;
-  status: 'active' | 'returned' | 'overdue';
-  book?: Book;
+  status: 'Active' | 'Returned' | 'Overdue' | 'Lost' | 'Completed';
+  notes: string;
+  first_name?: string;
+  last_name?: string;
+  title?: string;
+  item_type?: Library_Item_Type;
+  branch_name: string;
 }
 
 export interface Reservation {
@@ -63,15 +70,16 @@ export enum Genre {
   YoungAdult = 'Young Adult',
 }
 
-export interface BookFormData {
+export interface Book_Form_Data {
   title: string;
   author: string;
   publisher: string;
   cost: number;
-  libraryOfCongressCode?: string;
-  yearPublished?: string;
+  congress_code?: string;
+  publication_year?: number;
   genre?: Genre[];
   description?: string;
+  cover_img_url?: string;
 }
 
 export interface Patron {
@@ -81,6 +89,7 @@ export interface Patron {
   balance: number;
   birthday?: Date;
   card_expiration_date: Date;
+  image_url?: string;
 }
 
 export interface Branch {
@@ -96,6 +105,14 @@ export enum Library_Item_Type {
   Video = 'Video',
   Magazine = 'Magazine',
   Audiobook = 'Audiobook',
+}
+
+export interface Create_Catalog_Item_Form_Data {
+  title: string;
+  item_type: Library_Item_Type;
+  description?: string;
+  publication_year?: number;
+  congress_code?: string;
 }
 
 export interface Catalog_Item {

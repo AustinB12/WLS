@@ -5,48 +5,35 @@ import {
   Card,
   CardContent,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip,
   Box,
   Alert,
   Snackbar,
+  AlertTitle,
 } from '@mui/material';
 import { Add, PersonAdd, Assignment, Assessment } from '@mui/icons-material';
 import CreateBookDrawer from '../components/books/CreateBookDrawer';
 import { useState } from 'react';
-import type { BookFormData } from '../types';
-import sb from '../utils/supabase';
+import type { Book_Form_Data } from '../types';
+import { useCreateBook } from '../hooks/useBooks';
+import { RecentTransactionsList } from '../components/common/RecentTransactionsList';
 
 export const AdminPanel = () => {
   const [createBookDrawerOpen, setCreateBookDrawerOpen] = useState(false);
-  const [error, setError] = useState<string | null>('');
 
-  async function createBook(bookData: BookFormData) {
-    sb.from('items')
-      .insert(bookData)
-      .then(({ error }) => {
-        if (error) {
-          setError(error.message);
-        } else {
-          setCreateBookDrawerOpen(false);
-        }
-      });
-  }
+  const { mutate: createBook, error } = useCreateBook();
 
   return (
     <Container sx={{ p: 3 }}>
       <Snackbar
         anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
         open={Boolean(error)}
-        onClose={() => setError(null)}
+        onClose={() => {}}
         autoHideDuration={6000}
       >
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error">
+          {error?.message}
+          <AlertTitle>{error?.name}</AlertTitle>
+        </Alert>
       </Snackbar>
       <Typography
         variant="h3"
@@ -169,50 +156,14 @@ export const AdminPanel = () => {
         </Grid>
       </Grid>
 
-      <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-            Recent Transactions
-          </Typography>
-        </CardContent>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>Member</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Book</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Action</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell>John Doe</TableCell>
-                <TableCell>The Great Gatsby</TableCell>
-                <TableCell>Checkout</TableCell>
-                <TableCell>2025-10-15</TableCell>
-                <TableCell>
-                  <Chip label="Active" color="success" size="small" />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Jane Smith</TableCell>
-                <TableCell>Pride and Prejudice</TableCell>
-                <TableCell>Return</TableCell>
-                <TableCell>2025-10-14</TableCell>
-                <TableCell>
-                  <Chip label="Completed" color="info" size="small" />
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Card>
+      <RecentTransactionsList />
       <CreateBookDrawer
         open={createBookDrawerOpen}
         onClose={() => setCreateBookDrawerOpen(false)}
-        onSubmit={createBook}
+        onSubmit={(bookData: Book_Form_Data) => {
+          createBook(bookData);
+          setCreateBookDrawerOpen(false);
+        }}
       />
     </Container>
   );

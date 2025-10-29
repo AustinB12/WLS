@@ -7,470 +7,356 @@ import type {
   Item_Copy,
   Branch,
   Patron,
+  Book_Form_Data,
+  Create_Catalog_Item_Form_Data,
 } from '../types';
 import { Genre } from '../types';
-import supabase from '../utils/supabase';
 
-export const dataService = {
-  // Book operations
-  async getBooks(filters?: BookFilters): Promise<Book[]> {
-    let query = supabase.from('books').select('*');
+// API configuration
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1';
 
-    if (filters?.search) {
-      query = query.or(
-        `title.ilike.%${filters.search}%,author.ilike.%${filters.search}%,libraryOfCongressCode.ilike.%${filters.search}%`
+// Generic HTTP request function
+const api_request = async <T>(
+  endpoint: string,
+  options?: RequestInit
+): Promise<T> => {
+  const url = `${API_BASE_URL}${endpoint}`;
+
+  const config: RequestInit = {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+    ...options,
+  };
+
+  try {
+    const response = await fetch(url, config);
+
+    if (!response.ok) {
+      const error_data = await response.json().catch(() => ({}));
+      throw new Error(
+        error_data.message ||
+          error_data.error ||
+          `HTTP ${response.status}: ${response.statusText}`
       );
     }
 
+    const data = await response.json();
+    return data.data || data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Network request failed');
+  }
+};
+
+export const dataService = {
+  //! Book operations
+
+  async get_books(filters?: BookFilters): Promise<Book[]> {
+    const search_params = new URLSearchParams();
+
+    if (filters?.search) {
+      search_params.append('search', filters.search);
+    }
+
     if (filters?.genre) {
-      query = query.contains('genre', [filters.genre]);
+      search_params.append('genre', filters.genre);
     }
 
     if (filters?.author) {
-      query = query.ilike('author', `%${filters.author}%`);
+      search_params.append('author', filters.author);
     }
 
-    if (filters?.availability === 'available') {
-      query = query.eq('available', true);
-    } else if (filters?.availability === 'unavailable') {
-      query = query.eq('available', false);
+    if (filters?.availability) {
+      search_params.append('availability', filters.availability);
     }
 
-    const { data, error } = await query;
+    search_params.append('item_type', 'Book');
 
-    if (error) {
-      throw new Error(`Failed to fetch books: ${error.message}`);
-    }
+    const query_string = search_params.toString()
+      ? `?${search_params.toString()}`
+      : '';
+    const books = await api_request<Book[]>(`/catalog-items${query_string}`);
 
-    return data || [];
+    // Filter only books from catalog items
+    return books.filter((item) => item.item_type === 'Book');
   },
 
   async getBookById(id: string): Promise<Book | null> {
-    const { data, error } = await supabase
-      .from('books')
-      .select(
-        `
-        id,
-        author,
-        genre,
-        publisher,
-        catalog_id,
-        cover_img_url,
-        catalog_items ( item_type, title, description, publication_year, congress_code )
-      `
-      )
-      .eq('id', id)
-      .single();
+    try {
+      // First get the catalog item
+      const catalog_item = await api_request<Catalog_Item>(
+        `/catalog-items/${id}`
+      );
 
-    if (error) {
-      if (error.code === 'PGRST116') return null; // No rows found
-      throw new Error(`Failed to fetch book: ${error.message}`);
+      if (!catalog_item || catalog_item.item_type !== 'Book') {
+        return null;
+      }
+
+      // Then get book-specific details if they exist
+      // For now, we'll construct a basic book from catalog item
+      const book: Book = {
+        id: catalog_item.id,
+        title: catalog_item.title,
+        item_type: catalog_item.item_type,
+        description: catalog_item.description,
+        publication_year: catalog_item.publication_year,
+        congress_code: catalog_item.congress_code,
+        author: '', // These would come from books table
+        genre: [],
+        publisher: '',
+        cover_img_url: '',
+        catalog_id: catalog_item.id,
+      };
+
+      return book;
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('404')) {
+        return null;
+      }
+      throw error;
     }
-
-    if (!data) return null;
-
-    const catalog_item: Omit<Catalog_Item, 'id'> = Array.isArray(
-      data.catalog_items
-    )
-      ? data.catalog_items[0]
-      : data.catalog_items;
-
-    const new_book: Book = {
-      id: data.id,
-      author: data.author,
-      genre: data.genre,
-      publisher: data.publisher,
-      cover_img_url: data.cover_img_url,
-      catalog_id: data.catalog_id,
-      ...catalog_item,
-    };
-
-    return new_book;
   },
 
-  async createBook(book: Omit<Book, 'id'>): Promise<Book> {
-    const { data, error } = await supabase
-      .from('catalog_items')
-      .insert([book])
-      .select()
-      .single();
+  async create_book(book: Book_Form_Data): Promise<Book> {
+    const catalog_item_data = {
+      title: book.title,
+      item_type: 'Book',
+      description: book.description,
+      publication_year: book.publication_year,
+      congress_code: book.congress_code,
+    };
 
-    if (error) {
-      throw new Error(`Failed to create book: ${error.message}`);
-    }
+    const created_item = await api_request<Catalog_Item>('/catalog-items', {
+      method: 'POST',
+      body: JSON.stringify(catalog_item_data),
+    });
 
-    return data;
+    // Convert catalog item back to book format
+    return {
+      ...created_item,
+      author: book.author || '',
+      genre: book?.genre || [],
+      publisher: book?.publisher || '',
+      cover_img_url: book?.cover_img_url || '',
+      catalog_id: created_item.id,
+    };
   },
 
   async updateBook(id: string, updates: Partial<Book>): Promise<Book | null> {
-    const { data, error } = await supabase
-      .from('books')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
+    try {
+      const catalog_updates = {
+        title: updates.title,
+        description: updates.description,
+        publication_year: updates.publication_year,
+        congress_code: updates.congress_code,
+      };
 
-    if (error) {
-      if (error.code === 'PGRST116') return null; // No rows found
-      throw new Error(`Failed to update book: ${error.message}`);
+      await api_request(`/catalog-items/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(catalog_updates),
+      });
+
+      // Return updated book
+      return await this.getBookById(id);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('404')) {
+        return null;
+      }
+      throw error;
     }
-
-    return data;
   },
 
   async deleteBook(id: string): Promise<boolean> {
-    const { error } = await supabase.from('books').delete().eq('id', id);
-
-    if (error) {
-      throw new Error(`Failed to delete book: ${error.message}`);
-    }
-
+    await api_request(`/catalog-items/${id}`, {
+      method: 'DELETE',
+    });
     return true;
   },
 
   async getGenres(): Promise<Genre[]> {
-    const { data, error } = await supabase.from('books').select('genre');
+    // Since we don't have a dedicated books table with genres in the new API,
+    // we'll return a static list of common genres for now
+    // TODO: Implement genre extraction from catalog items or create separate endpoint
+    const common_genres = [
+      'Fiction',
+      'Non-Fiction',
+      'Mystery',
+      'Romance',
+      'Science Fiction',
+      'Fantasy',
+      'Biography',
+      'History',
+      'Children',
+      'Young Adult',
+      'Poetry',
+      'Drama',
+    ] as Genre[];
 
-    if (error) {
-      throw new Error(`Failed to fetch genres: ${error.message}`);
-    }
-
-    const genres = new Set<Genre>();
-    data?.forEach((book) => {
-      if (book.genre && Array.isArray(book.genre)) {
-        book.genre.forEach((g: Genre) => genres.add(g));
-      }
-    });
-    return Array.from(genres).sort();
+    return common_genres.sort();
   },
 
   // Transaction operations
-  async checkoutBook(bookId: string, patronId?: string): Promise<Transaction> {
-    // Check if book is available
-    const { data: book, error: bookError } = await supabase
-      .from('books')
-      .select('*')
-      .eq('id', bookId)
-      .eq('available', true)
-      .single();
-
-    if (bookError || !book) {
-      throw new Error('Book not available for checkout');
-    }
-
-    const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 14); // 2 weeks from now
-
-    const transactionData = {
-      book_id: bookId,
-      patron_id: patronId,
-      transaction_type: 'checkout' as const,
-      checkout_date: new Date().toISOString(),
-      due_date: dueDate.toISOString(),
-      status: 'active' as const,
+  async checkoutBook(
+    patron_id: number,
+    copy_id: string,
+    due_date?: Date
+  ): Promise<Transaction> {
+    const checkout_data = {
+      copy_id,
+      patron_id,
+      due_date: due_date?.toISOString() || undefined,
     };
 
-    // Create transaction
-    const { data: transaction, error: transactionError } = await supabase
-      .from('transactions')
-      .insert([transactionData])
-      .select('*, books(*)')
-      .single();
+    const transaction = await api_request<Transaction>(
+      '/transactions/checkout',
+      {
+        method: 'POST',
+        body: JSON.stringify(checkout_data),
+      }
+    );
 
-    if (transactionError) {
-      throw new Error(
-        `Failed to create checkout transaction: ${transactionError.message}`
-      );
-    }
-
-    // Update book availability
-    const { error: updateError } = await supabase
-      .from('books')
-      .update({ available: false })
-      .eq('id', bookId);
-
-    if (updateError) {
-      throw new Error(
-        `Failed to update book availability: ${updateError.message}`
-      );
-    }
-
-    return {
-      ...transaction,
-      book: transaction.books,
-    };
+    return transaction;
   },
 
-  async returnBook(transactionId: string): Promise<Transaction | null> {
-    // Get the transaction
-    const { data: transaction, error: transactionError } = await supabase
-      .from('transactions')
-      .select('*, books(*)')
-      .eq('id', transactionId)
-      .eq('status', 'active')
-      .single();
+  async returnBook(copy_id: string): Promise<Transaction | null> {
+    try {
+      const checkin_data = {
+        copy_id,
+      };
 
-    if (transactionError || !transaction) {
-      return null;
-    }
-
-    // Update transaction status
-    const { data: updatedTransaction, error: updateError } = await supabase
-      .from('transactions')
-      .update({
-        status: 'returned',
-        return_date: new Date().toISOString(),
-      })
-      .eq('id', transactionId)
-      .select('*, books(*)')
-      .single();
-
-    if (updateError) {
-      throw new Error(`Failed to update transaction: ${updateError.message}`);
-    }
-
-    // Update book availability
-    const { error: bookUpdateError } = await supabase
-      .from('books')
-      .update({ available: true })
-      .eq('id', transaction.book_id);
-
-    if (bookUpdateError) {
-      throw new Error(
-        `Failed to update book availability: ${bookUpdateError.message}`
+      const result = await api_request<{ transaction_id: string }>(
+        '/transactions/checkin',
+        {
+          method: 'POST',
+          body: JSON.stringify(checkin_data),
+        }
       );
-    }
 
-    return {
-      ...updatedTransaction,
-      book: updatedTransaction.books,
-    };
+      // Get the updated transaction
+      return await api_request<Transaction>(
+        `/transactions/${result.transaction_id}`
+      );
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('404')) {
+        return null;
+      }
+      throw error;
+    }
   },
 
   async getAllTransactions(): Promise<Transaction[]> {
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('*, books(*)')
-      .order('checkout_date', { ascending: false });
-
-    if (error) {
-      throw new Error(`Failed to fetch transactions: ${error.message}`);
-    }
-
-    return (data || []).map((t) => ({
-      ...t,
-      book: t.books,
-    }));
+    return await api_request<Transaction[]>('/transactions');
   },
 
   async getOverdueTransactions(): Promise<Transaction[]> {
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('*, books(*)')
-      .eq('status', 'overdue')
-      .order('due_date', { ascending: true });
+    // Get all active transactions and filter overdue on client side
+    // TODO: Add server-side filtering for overdue transactions
+    const all_transactions = await api_request<Transaction[]>(
+      '/transactions?status=Active'
+    );
+    const now = new Date();
 
-    if (error) {
-      throw new Error(`Failed to fetch overdue transactions: ${error.message}`);
-    }
+    return all_transactions.filter((transaction) => {
+      return transaction.due_date && new Date(transaction.due_date) < now;
+    });
+  },
 
-    return (data || []).map((t) => ({
-      ...t,
-      book: t.books,
-    }));
+  async getActiveTransactions(): Promise<Transaction[]> {
+    return await api_request<Transaction[]>('/transactions?status=Active');
   },
 
   // Reservation operations
-  async reserveBook(bookId: string, patronId?: string): Promise<Reservation> {
-    // Check if book exists
-    const { data: book, error: bookError } = await supabase
-      .from('books')
-      .select('*')
-      .eq('id', bookId)
-      .single();
-
-    if (bookError || !book) {
-      throw new Error('Book not found');
-    }
-
-    const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + 7); // 1 week from now
-
-    const reservationData = {
-      book_id: bookId,
-      patron_id: patronId,
-      reservation_date: new Date().toISOString(),
-      status: 'pending' as const,
-      expiry_date: expiryDate.toISOString(),
+  async reserveBook(
+    catalog_item_id: string,
+    patron_id?: number
+  ): Promise<Reservation> {
+    const reservation_data = {
+      catalog_item_id,
+      patron_id,
     };
 
-    const { data: reservation, error } = await supabase
-      .from('reservations')
-      .insert([reservationData])
-      .select('*, books(*)')
-      .single();
-
-    if (error) {
-      throw new Error(`Failed to create reservation: ${error.message}`);
-    }
-
-    return {
-      ...reservation,
-      book: reservation.books,
-    };
+    return await api_request<Reservation>('/reservations', {
+      method: 'POST',
+      body: JSON.stringify(reservation_data),
+    });
   },
 
   async getAllReservations(): Promise<Reservation[]> {
-    const { data, error } = await supabase
-      .from('reservations')
-      .select('*, books(*)')
-      .order('reservation_date', { ascending: false });
-
-    if (error) {
-      throw new Error(`Failed to fetch reservations: ${error.message}`);
-    }
-
-    return (data || []).map((r) => ({
-      ...r,
-      book: r.books,
-    }));
+    return await api_request<Reservation[]>('/reservations');
   },
 
-  async cancelReservation(reservationId: string): Promise<Reservation | null> {
-    const { data, error } = await supabase
-      .from('reservations')
-      .update({ status: 'cancelled' })
-      .eq('id', reservationId)
-      .select('*, books(*)')
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') return null; // No rows found
-      throw new Error(`Failed to cancel reservation: ${error.message}`);
+  async cancelReservation(reservation_id: string): Promise<Reservation | null> {
+    try {
+      await api_request(`/reservations/${reservation_id}`, {
+        method: 'DELETE',
+      });
+      return null; // Deletion successful
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('404')) {
+        return null;
+      }
+      throw error;
     }
-
-    return {
-      ...data,
-      book: data.books,
-    };
   },
 
   async get_all_catalog_items(): Promise<Catalog_Item[]> {
-    const { data, error } = await supabase
-      .from('catalog_items')
-      .select('*')
-      .order('title', { ascending: true });
+    return await api_request<Catalog_Item[]>('/catalog-items');
+  },
 
-    if (error) {
-      throw new Error(`Failed to fetch catalog items: ${error.message}`);
-    }
-
-    return data || [];
+  async create_catalog_item(
+    item: Create_Catalog_Item_Form_Data
+  ): Promise<Catalog_Item> {
+    return await api_request<Catalog_Item>('/catalog-items', {
+      method: 'POST',
+      body: JSON.stringify(item),
+    });
   },
 
   async get_all_copies_by_item_id(item_id: string): Promise<Item_Copy[]> {
-    const { data, error } = await supabase
-      .from('item_copies')
-      .select('*')
-      .eq('catalog_item_id', item_id)
-      .order('status', { ascending: true });
-
-    if (error) {
-      throw new Error(`Failed to fetch item copies: ${error.message}`);
-    }
-
-    return data || [];
+    return await api_request<Item_Copy[]>(`/item-copies/catalog/${item_id}`);
   },
 
   async get_all_copy_ids(): Promise<string[]> {
-    const { data, error } = await supabase
-      .from('item_copies')
-      .select('id')
-      .order('status', { ascending: true });
-
-    if (error) {
-      throw new Error(`Failed to fetch item copies: ${error.message}`);
-    }
-
-    return data.map((item) => item.id) || [];
+    const copies = await api_request<Item_Copy[]>('/item-copies');
+    return copies.map((item: Item_Copy) => item.id);
   },
 
   async get_all_copies(): Promise<Item_Copy[]> {
-    const { data, error } = await supabase
-      .from('item_copies')
-      .select(
-        `*,
-          catalog_items(
-          congress_code,
-          description,
-          item_type,
-          publication_year,
-          title
-          )
-        `
-      )
-      .order('status', { ascending: true });
-
-    if (error) {
-      throw new Error(`Failed to fetch item copies: ${error.message}`);
-    }
-
-    const formatted_data = data?.map((copy) => {
-      const catalog_item = Array.isArray(copy.catalog_items)
-        ? copy.catalog_items[0]
-        : copy.catalog_items;
-
-      return {
-        ...copy,
-        congress_code: catalog_item?.congress_code,
-        description: catalog_item?.description,
-        item_type: catalog_item?.item_type,
-        publication_year: catalog_item?.publication_year,
-        title: catalog_item?.title,
-      };
-    });
-
-    return (formatted_data as Item_Copy[]) || [];
+    return await api_request<Item_Copy[]>('/item-copies');
   },
 
   async get_copy_by_id(copy_id: string): Promise<Item_Copy | null> {
-    const { data, error } = await supabase
-      .from('item_copies')
-      .select('*')
-      .eq('id', copy_id)
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') return null; // No rows found
-      throw new Error(`Failed to fetch item copy: ${error.message}`);
+    try {
+      return await api_request<Item_Copy>(`/item-copies/${copy_id}`);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('404')) {
+        return null;
+      }
+      throw error;
     }
-
-    return data;
   },
 
   async get_all_branches(): Promise<Branch[]> {
-    const { data, error } = await supabase
-      .from('branches')
-      .select('*')
-      .order('is_main', { ascending: true });
-
-    if (error) {
-      throw new Error(`Failed to fetch branches: ${error.message}`);
-    }
-
-    return data || [];
+    return await api_request<Branch[]>('/branches');
   },
 
   async get_all_patrons(): Promise<Patron[]> {
-    const { data, error } = await supabase
-      .from('patrons')
-      .select('*')
-      .order('last_name', { ascending: true });
+    return await api_request<Patron[]>('/patrons');
+  },
 
-    if (error) {
-      throw new Error(`Failed to fetch patrons: ${error.message}`);
+  async get_patron_by_id(patron_id: number): Promise<Patron | null> {
+    try {
+      return await api_request<Patron>(`/patrons/${patron_id}`);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('404')) {
+        return null;
+      }
+      throw error;
     }
-
-    return data || [];
   },
 };

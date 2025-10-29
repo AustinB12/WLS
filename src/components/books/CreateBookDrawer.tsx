@@ -20,23 +20,24 @@ import {
   Save as SaveIcon,
   Clear as ClearIcon,
 } from '@mui/icons-material';
-import { Genre, type BookFormData } from '../../types';
+import { Genre, type Book_Form_Data } from '../../types';
 
 export interface BookFormErrors {
   title: string;
   author: string;
   publisher: string;
   cost: string;
-  libraryOfCongressCode?: string;
-  yearPublished?: string;
+  congress_code?: string;
+  publication_year?: string;
   genre?: Genre;
   description?: string;
+  cover_img_url?: string;
 }
 
 interface CreateBookDrawerProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (bookData: BookFormData) => void;
+  onSubmit: (bookData: Book_Form_Data) => void;
 }
 
 const CreateBookDrawer: FC<CreateBookDrawerProps> = ({
@@ -44,13 +45,13 @@ const CreateBookDrawer: FC<CreateBookDrawerProps> = ({
   onClose,
   onSubmit,
 }) => {
-  const [formData, setFormData] = useState<BookFormData>({
+  const [formData, setFormData] = useState<Book_Form_Data>({
     title: '',
     author: '',
     publisher: '',
     cost: 0,
-    libraryOfCongressCode: '',
-    yearPublished: '2000',
+    congress_code: '',
+    publication_year: 2000,
     description: '',
   });
 
@@ -78,20 +79,20 @@ const CreateBookDrawer: FC<CreateBookDrawerProps> = ({
 
     // Optional field validations
     if (
-      formData.yearPublished &&
-      (isNaN(Number(formData.yearPublished)) ||
-        Number(formData.yearPublished) < 1000 ||
-        Number(formData.yearPublished) > new Date().getFullYear() + 1)
+      formData.publication_year &&
+      (isNaN(Number(formData.publication_year)) ||
+        Number(formData.publication_year) < 1000 ||
+        Number(formData.publication_year) > new Date().getFullYear() + 1)
     ) {
-      newErrors.yearPublished = 'Published year must be a valid year';
+      newErrors.publication_year = 'Published year must be a valid year';
     }
 
     if (
-      formData.libraryOfCongressCode &&
-      formData.libraryOfCongressCode.length > 0 &&
-      formData.libraryOfCongressCode.length < 10
+      formData.congress_code &&
+      formData.congress_code.length > 0 &&
+      formData.congress_code.length < 10
     ) {
-      newErrors.libraryOfCongressCode =
+      newErrors.congress_code =
         'Library of Congress Code should be at least 10 characters';
     }
 
@@ -100,7 +101,7 @@ const CreateBookDrawer: FC<CreateBookDrawerProps> = ({
   };
 
   const handleInputChange = (
-    field: keyof BookFormData,
+    field: keyof Book_Form_Data,
     value: string | number | Genre[]
   ) => {
     setFormData((prev) => ({
@@ -139,9 +140,9 @@ const CreateBookDrawer: FC<CreateBookDrawerProps> = ({
       author: '',
       publisher: '',
       cost: 0,
-      libraryOfCongressCode: '',
-      yearPublished: '',
-      description: '',
+      congress_code: '',
+      publication_year: 2000,
+      cover_img_url: '',
     });
     setErrors({});
     setSubmitError('');
@@ -275,12 +276,12 @@ const CreateBookDrawer: FC<CreateBookDrawerProps> = ({
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField
                 label="Library of Congress Code"
-                value={formData.libraryOfCongressCode}
+                value={formData.congress_code}
                 onChange={(e) =>
-                  handleInputChange('libraryOfCongressCode', e.target.value)
+                  handleInputChange('congress_code', e.target.value)
                 }
-                error={!!errors.libraryOfCongressCode}
-                helperText={errors.libraryOfCongressCode}
+                error={!!errors.congress_code}
+                helperText={errors.congress_code}
                 fullWidth
                 variant="outlined"
               />
@@ -288,12 +289,12 @@ const CreateBookDrawer: FC<CreateBookDrawerProps> = ({
               <TextField
                 label="Published Year"
                 type="number"
-                value={formData.yearPublished}
+                value={formData.publication_year}
                 onChange={(e) =>
-                  handleInputChange('yearPublished', Number(e.target.value))
+                  handleInputChange('publication_year', Number(e.target.value))
                 }
-                error={!!errors.yearPublished}
-                helperText={errors.yearPublished}
+                error={!!errors.publication_year}
+                helperText={errors.publication_year}
                 fullWidth
                 variant="outlined"
               />

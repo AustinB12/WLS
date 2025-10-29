@@ -5,7 +5,7 @@ import type { Book, BookFilters } from '../types';
 export const useBooks = (filters?: BookFilters) => {
   return useQuery({
     queryKey: ['books', filters],
-    queryFn: () => dataService.getBooks(filters),
+    queryFn: () => dataService.get_books(filters),
   });
 };
 
@@ -21,7 +21,7 @@ export const useCreateBook = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: dataService.createBook,
+    mutationFn: dataService.create_book,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['books'] });
     },

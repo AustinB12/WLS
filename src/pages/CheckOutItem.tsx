@@ -21,6 +21,7 @@ import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { CopiesDataGrid } from '../components/copies/CopiesDataGrid';
 import { format_date, is_overdue } from '../utils/dateUtils';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { useCheckoutBook } from '../hooks/useTransactions';
 
 const two_weeks_from_now = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // Default 2 weeks from now
 
@@ -78,14 +79,14 @@ const columns: GridColDef[] = [
 ];
 
 interface CheckOutFormData {
-  patron_id: string;
+  patron_id: number;
   item_id: string;
   due_date: Date;
 }
 
 export const CheckOutItem: React.FC = () => {
   const [form_data, set_form_data] = useState<CheckOutFormData>({
-    patron_id: '',
+    patron_id: 0,
     item_id: '',
     due_date: two_weeks_from_now,
   });
@@ -95,6 +96,8 @@ export const CheckOutItem: React.FC = () => {
 
   const [active_step, set_active_step] = useState(0);
   const [skipped, set_skipped] = useState(new Set<number>());
+
+  const { mutate: checkoutBook } = useCheckoutBook();
 
   const handle_retry = useCallback(() => {
     set_error(null);
@@ -106,6 +109,14 @@ export const CheckOutItem: React.FC = () => {
   };
 
   const handle_next = () => {
+    if (active_step === steps.length - 1) {
+      checkoutBook({
+        patron_id: form_data.patron_id,
+        copy_id: form_data.item_id,
+        due_date: form_data.due_date,
+      });
+      return;
+    }
     let new_skipped = skipped;
     if (is_step_skipped(active_step)) {
       new_skipped = new Set(new_skipped.values());
@@ -134,7 +145,7 @@ export const CheckOutItem: React.FC = () => {
   };
 
   const handle_patron_selected = (patron_id: string) => {
-    set_form_data((prev) => ({ ...prev, patron_id: patron_id }));
+    set_form_data((prev) => ({ ...prev, patron_id: Number(patron_id) }));
   };
 
   const handle_copy_selected = (copy_id: string) => {
@@ -156,6 +167,7 @@ export const CheckOutItem: React.FC = () => {
         }}
       >
         <Typography
+          onClick={() => console.log(form_data)}
           variant="h3"
           component="h1"
           gutterBottom
@@ -217,7 +229,7 @@ export const CheckOutItem: React.FC = () => {
         {active_step === steps.length ? (
           <>
             <Typography sx={{ mt: 2, mb: 1 }}>
-              All steps completed - you&apos;re finished
+              {"All steps completed - you're finished"}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
               <Box sx={{ flex: '1 1 auto' }} />
@@ -294,6 +306,7 @@ export const CheckOutItem: React.FC = () => {
               <Tooltip
                 children={
                   <span>
+                    {/* this span is needed to avoid a ref error caused by MUI code */}
                     <Button
                       variant="outlined"
                       onClick={handle_next}

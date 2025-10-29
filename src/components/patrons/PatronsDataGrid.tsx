@@ -1,6 +1,7 @@
 import {
   DataGrid,
   type GridColDef,
+  type GridDensity,
   type GridRenderCellParams,
   type GridRowSelectionModel,
 } from '@mui/x-data-grid';
@@ -8,18 +9,37 @@ import {
 import { useEffect, useState } from 'react';
 import { useAllPatrons } from '../../hooks/usePatrons';
 import { format_date, is_overdue } from '../../utils/dateUtils';
-import { Alert, Box, Snackbar } from '@mui/material';
+import { Alert, Box, Link, Snackbar } from '@mui/material';
 
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID' },
-  { field: 'first_name', headerName: 'First', flex: 1 },
-  { field: 'last_name', headerName: 'Last', flex: 2 },
-  { field: 'balance', headerName: 'Balance', flex: 1 },
+  { field: 'id', headerName: 'ID', width: 50 },
+  {
+    field: 'first_name',
+    headerName: 'Name',
+    flex: 2,
+    renderCell: (params: GridRenderCellParams) => (
+      <Link
+        sx={{ textDecoration: 'none', color: 'primary' }}
+        href={`/patron/${params.row.id}`}
+      >{`${params.value} ${params.row.last_name}`}</Link>
+    ),
+  },
+  {
+    field: 'balance',
+    headerName: 'Balance',
+    flex: 1,
+    valueFormatter: (value: number) => {
+      if (!value || typeof value !== 'number') return '$0.00';
+      return `$${value.toFixed(2)}`;
+    },
+  },
   {
     field: 'birthday',
     headerName: 'Birthday',
     valueGetter: (value) => {
-      if (!value) return;
+      if (!value || typeof value !== 'string') return '(No birthdate listed)';
+      if (typeof value === 'string' && (value as string).length !== 10)
+        return '(Invalid Format)';
       return format_date(value);
     },
     flex: 3,
@@ -29,7 +49,8 @@ const columns: GridColDef[] = [
     field: 'card_expiration_date',
     headerName: 'Card Expiration',
     valueGetter: (value) => {
-      if (!value) return;
+      if (!value || typeof value !== 'string')
+        return '(No expiration date listed)';
       return format_date(value);
     },
     flex: 3,
@@ -50,6 +71,7 @@ interface PatronsDataGridProps {
   cols?: GridColDef[];
   onPatronSelected?: (patronId: string) => void;
   check_overdue?: boolean;
+  density?: GridDensity;
 }
 
 export const PatronsDataGrid: React.FC<PatronsDataGridProps> = ({
@@ -57,6 +79,7 @@ export const PatronsDataGrid: React.FC<PatronsDataGridProps> = ({
   cols = columns,
   onPatronSelected = undefined,
   check_overdue: check_card_and_blanance = false,
+  density = 'standard',
 }) => {
   const { data: patrons, isLoading: loading, error } = useAllPatrons();
 
@@ -72,6 +95,7 @@ export const PatronsDataGrid: React.FC<PatronsDataGridProps> = ({
     card_expiration_date: Date;
     balance: number;
   }) => {
+    if (!check_card_and_blanance) return true;
     return (
       check_card_and_blanance &&
       !is_overdue(row.card_expiration_date) &&
@@ -83,10 +107,10 @@ export const PatronsDataGrid: React.FC<PatronsDataGridProps> = ({
     <>
       <DataGrid
         showToolbar
+        density={density}
         onRowDoubleClick={(params) =>
           !patron_can_be_selected(params.row) && set_snack(true)
         }
-        disableColumnSelector
         rows={patrons || []}
         columns={cols}
         loading={loading}
@@ -116,6 +140,7 @@ export const PatronsDataGrid: React.FC<PatronsDataGridProps> = ({
             csvOptions: { disableToolbarButton: true },
           },
         }}
+        disableRowSelectionOnClick={!check_card_and_blanance}
         onRowSelectionModelChange={(x) => {
           const selected_id =
             Array.from((x as GridRowSelectionModel).ids)[0]?.toString() || '';
@@ -124,6 +149,7 @@ export const PatronsDataGrid: React.FC<PatronsDataGridProps> = ({
           }
         }}
         isRowSelectable={(params) => patron_can_be_selected(params.row)}
+        disableDensitySelector={false}
       />
       <Snackbar
         open={snack}

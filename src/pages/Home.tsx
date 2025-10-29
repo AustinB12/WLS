@@ -18,6 +18,7 @@ import {
   TrendingUp,
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { Logo } from '../components/common/Logo';
 
 export const Home = () => {
   return (
@@ -43,10 +44,27 @@ export const Home = () => {
               fullWidth
               variant="contained"
               color="primary"
-              startIcon={<LibraryAddCheck />}
+              startIcon={
+                <LibraryAddCheck
+                  sx={{
+                    fontSize: {
+                      xs: '1rem !important',
+                      sm: '1.25rem !important',
+                      md: '2rem !important',
+                      lg: '2.5rem !important',
+                      xl: '3rem !important',
+                    },
+                  }}
+                />
+              }
               sx={{
-                height: '100%',
+                height: '60%',
                 fontSize: { xs: '1rem', sm: '1.25rem', md: '2rem' },
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                '&:hover': {
+                  background:
+                    'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
+                },
               }}
             >
               Check In
@@ -59,10 +77,27 @@ export const Home = () => {
               fullWidth
               variant="contained"
               color="secondary"
-              startIcon={<LibraryAdd />}
+              startIcon={
+                <LibraryAdd
+                  sx={{
+                    fontSize: {
+                      xs: '1rem !important',
+                      sm: '1.25rem !important',
+                      md: '2rem !important',
+                      lg: '2.5rem !important',
+                      xl: '3rem !important',
+                    },
+                  }}
+                />
+              }
               sx={{
-                height: '100%',
+                height: '60%',
                 fontSize: { xs: '1rem', sm: '1.25rem', md: '2rem' },
+                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                '&:hover': {
+                  background:
+                    'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)',
+                },
               }}
             >
               Check Out
@@ -72,6 +107,9 @@ export const Home = () => {
       </Grid>
 
       <Grid container spacing={3}>
+        <Grid size={{ xs: 12 }} sx={{ textAlign: 'center' }}>
+          <Logo size={'90%'} />
+        </Grid>
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
@@ -104,7 +142,7 @@ export const Home = () => {
           <Card sx={{ height: '100%' }}>
             <CardContent>
               <Stack sx={{ flexDirection: 'row', alignItems: 'center', mb: 2 }}>
-                <History sx={{ mr: 1 }} />
+                <History sx={{ mr: 1, color: 'secondary.main' }} />
                 <Typography
                   variant="h6"
                   component="h2"

@@ -16,6 +16,7 @@ import { type SelectChangeEvent } from '@mui/material/Select';
 import { useAllCopyIds, useCopyById } from '../hooks/useCopies';
 import { useBranchesContext } from '../hooks/useBranchHooks';
 import { get_condition_color } from '../utils/colors';
+import { CheckedOutItemsGrid } from '../components/common/CheckedOutItemsGrid';
 
 const conditions: string[] = ['New', 'Excellent', 'Good', 'Fair', 'Poor'];
 
@@ -142,6 +143,7 @@ export const CheckInItem: FC = () => {
           </FormControl>
         </Grid>
       </Grid>
+      <CheckedOutItemsGrid />
       <Button
         size="large"
         onClick={() => alert('Check in item: ' + value)}

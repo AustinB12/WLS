@@ -14,9 +14,10 @@ import {
 import {
   Home,
   Dashboard,
-  MenuBook,
   Settings,
-  Person,
+  SsidChart,
+  Groups2,
+  Book,
 } from '@mui/icons-material';
 import { type PropsWithChildren } from 'react';
 
@@ -44,8 +45,9 @@ export const Sidebar = ({
   const menuItems = [
     { text: 'Home', path: '/', icon: <Home /> },
     { text: 'Dashboard', path: '/dashboard', icon: <Dashboard /> },
-    { text: 'Catalog', path: '/catalog', icon: <MenuBook /> },
-    { text: 'Patrons', path: '/patrons', icon: <Person /> },
+    { text: 'Catalog', path: '/catalog', icon: <Book /> },
+    { text: 'Patrons', path: '/patrons', icon: <Groups2 /> },
+    { text: 'Transactions', path: '/transactions', icon: <SsidChart /> },
   ];
 
   const adminItems = [
