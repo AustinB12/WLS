@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
+const serverless = require('serverless-http');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -98,4 +99,4 @@ app.listen(PORT, () => {
   console.log(`API Base URL: ${api_base}`);
 });
 
-module.exports = app;
+module.exports = serverless(app);
