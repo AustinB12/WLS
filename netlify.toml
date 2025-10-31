@@ -3,3 +3,8 @@
 
 [functions]
 	directory = "server"
+
+[[redirects]]
+	from = "/api/*"
+	to = "/server/api/:splat"
+	status = 200
